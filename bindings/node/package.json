@@ -1,0 +1,69 @@
+{
+  "name": "@libsilver/nodejs",
+  "version": "0.1.0",
+  "description": "Cross-platform cryptography library for Node.js - built with RustCrypto",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "keywords": [
+    "cryptography",
+    "encryption",
+    "rust",
+    "napi",
+    "cross-platform",
+    "aes",
+    "chacha20",
+    "rsa",
+    "ed25519",
+    "ecdsa",
+    "sha256",
+    "blake3",
+    "argon2"
+  ],
+  "author": "Nhan Dang <64256004+DangVTNhan@users.noreply.github.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DangVTNhan/libsilver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DangVTNhan/libsilver/issues"
+  },
+  "homepage": "https://github.com/DangVTNhan/libsilver#readme",
+  "napi": {
+    "name": "libsilver",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "x86_64-pc-windows-msvc",
+        "x86_64-apple-darwin",
+        "aarch64-apple-darwin",
+        "x86_64-unknown-linux-gnu",
+        "aarch64-unknown-linux-gnu"
+      ]
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node"
+  ],
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "build:all": "napi build --platform --release --target x86_64-pc-windows-msvc --target x86_64-apple-darwin --target aarch64-apple-darwin --target x86_64-unknown-linux-gnu --target aarch64-unknown-linux-gnu",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "node test/test.js",
+    "version": "napi version"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "engines": {
+    "node": ">= 10"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
+}

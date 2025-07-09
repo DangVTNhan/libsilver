@@ -1,0 +1,53 @@
+[package]
+name = "libsilver"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nhan Dang <64256004+DangVTNhan@users.noreply.github.com>"]
+description = "Cross-platform cryptography library built with RustCrypto"
+license = "MIT"
+repository = "https://github.com/DangVTNhan/libsilver"
+keywords = ["cryptography", "encryption", "cross-platform", "ffi"]
+categories = ["cryptography", "api-bindings"]
+
+[features]
+default = ["std"]
+std = []
+nodejs = ["napi", "napi-derive"]
+uniffi = ["dep:uniffi"]
+all-platforms = ["nodejs", "uniffi"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Core crypto dependencies
+aes = "0.8"
+aes-gcm = "0.10"
+chacha20poly1305 = "0.10"
+rsa = { version = "0.9", features = ["sha2"] }
+p256 = "0.13"
+ed25519-dalek = "2.0"
+sha2 = "0.10"
+blake3 = "1.5"
+hmac = "0.12"
+argon2 = "0.5"
+hkdf = "0.12"
+pbkdf2 = "0.12"
+rand = "0.8"
+getrandom = "0.2"
+hex = "0.4"
+base64 = "0.21"
+zeroize = { version = "1.7", features = ["zeroize_derive"] }
+thiserror = "1.0"
+
+# FFI dependencies (optional)
+napi = { version = "2.0", optional = true }
+napi-derive = { version = "2.0", optional = true }
+uniffi = { version = "0.25", optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "crypto_bench"
+harness = false
