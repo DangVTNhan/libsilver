@@ -1,0 +1,9 @@
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/x86_64-apple-darwin/release/deps/chacha20poly1305-d48210b602496e9c.d: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/cipher.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/../README.md
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/x86_64-apple-darwin/release/deps/libchacha20poly1305-d48210b602496e9c.rlib: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/cipher.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/../README.md
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/x86_64-apple-darwin/release/deps/libchacha20poly1305-d48210b602496e9c.rmeta: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/cipher.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/../README.md
+
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/lib.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/cipher.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chacha20poly1305-0.10.1/src/../README.md:

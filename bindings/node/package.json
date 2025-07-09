@@ -1,6 +1,6 @@
 {
-  "name": "@libsilver/nodejs",
-  "version": "0.1.0",
+  "name": "libsilver-nodejs",
+  "version": "0.1.1",
   "description": "Cross-platform cryptography library for Node.js - built with RustCrypto",
   "main": "index.js",
   "types": "index.d.ts",
@@ -46,11 +46,10 @@
     "triples": {
       "defaults": false,
       "additional": [
-        "x86_64-apple-darwin",
         "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
         "x86_64-pc-windows-msvc",
-        "x86_64-unknown-linux-gnu",
-        "aarch64-unknown-linux-gnu"
+        "aarch64-pc-windows-msvc"
       ]
     }
   },
@@ -65,7 +64,9 @@
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
-    "build:all": "napi build --platform --release --target x86_64-apple-darwin --target aarch64-apple-darwin --target x86_64-pc-windows-msvc --target x86_64-unknown-linux-gnu --target aarch64-unknown-linux-gnu",
+    "build:all": "npm run build:macos && npm run build:windows",
+    "build:macos": "export PATH=\"/opt/homebrew/opt/llvm/bin:$PATH\" && npx napi build --platform --release --target aarch64-apple-darwin && npx napi build --platform --release --target x86_64-apple-darwin",
+    "build:windows": "export PATH=\"/opt/homebrew/opt/llvm/bin:$PATH\" && npx napi build --platform --release --target x86_64-pc-windows-msvc && npx napi build --platform --release --target aarch64-pc-windows-msvc",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "node test/test.js",
     "example": "node examples/nodejs-example.js",
@@ -79,7 +80,12 @@
     "node": ">= 14"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
+    "registry": "https://registry.npmjs.org/"
+  },
+  "optionalDependencies": {
+    "libsilver-nodejs-darwin-arm64": "0.1.1",
+    "libsilver-nodejs-darwin-x64": "0.1.1",
+    "libsilver-nodejs-win32-x64-msvc": "0.1.1",
+    "libsilver-nodejs-win32-arm64-msvc": "0.1.1"
   }
 }

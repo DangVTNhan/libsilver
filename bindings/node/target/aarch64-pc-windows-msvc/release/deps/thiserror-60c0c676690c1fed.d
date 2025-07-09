@@ -1,0 +1,9 @@
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-pc-windows-msvc/release/deps/thiserror-60c0c676690c1fed.d: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/aserror.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/display.rs
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-pc-windows-msvc/release/deps/libthiserror-60c0c676690c1fed.rlib: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/aserror.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/display.rs
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-pc-windows-msvc/release/deps/libthiserror-60c0c676690c1fed.rmeta: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/aserror.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/display.rs
+
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/lib.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/aserror.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-1.0.69/src/display.rs:

@@ -1,0 +1,9 @@
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/x86_64-pc-windows-msvc/release/deps/rand_chacha-b396e831d2943f46.d: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/chacha.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/guts.rs
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/x86_64-pc-windows-msvc/release/deps/librand_chacha-b396e831d2943f46.rlib: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/chacha.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/guts.rs
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/x86_64-pc-windows-msvc/release/deps/librand_chacha-b396e831d2943f46.rmeta: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/chacha.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/guts.rs
+
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/lib.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/chacha.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_chacha-0.3.1/src/guts.rs:

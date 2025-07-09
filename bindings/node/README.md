@@ -11,19 +11,19 @@ High-performance cryptography library for Node.js, built with Rust and RustCrypt
 - **Key Derivation Functions**: Argon2, HKDF, PBKDF2
 - **Secure Random Generation**: OS-backed cryptographically secure random number generation
 - **Memory Safety**: Automatic zeroization of sensitive data
-- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **Cross-Platform**: Works on Windows (x64/ARM64), macOS (Intel/ARM64), and Linux (via CI/CD)
 - **TypeScript Support**: Full TypeScript definitions included
 
 ## 📦 Installation
 
 ```bash
-npm install @libsilver/nodejs
+npm install libsilver-nodejs
 ```
 
 ## 🔧 Quick Start
 
 ```javascript
-const { SymmetricCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator } = require('@libsilver/nodejs');
+const { SymmetricCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator } = require('libsilver-nodejs');
 
 // Symmetric encryption
 const key = SymmetricCrypto.generateAesKey();
@@ -149,6 +149,19 @@ node examples/nodejs-example.js
 ```bash
 npm test
 ```
+
+## 🖥️ Platform Support
+
+| Platform | Architecture | Status | Notes |
+|----------|-------------|--------|-------|
+| macOS | ARM64 (M1/M2) | ✅ | Native compilation |
+| macOS | Intel x64 | ✅ | Cross-compilation |
+| Windows | x64 | ✅ | Cross-compilation |
+| Windows | ARM64 | ✅ | Cross-compilation |
+| Linux | x64 | ⚠️ | CI/CD builds |
+| Linux | ARM64 | ⚠️ | CI/CD builds |
+
+Pre-built binaries are available for all supported platforms via npm.
 
 ## 📄 License
 

@@ -1,0 +1,9 @@
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-pc-windows-msvc/release/deps/num_integer-ea7c07bb46a7787d.d: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/roots.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/average.rs
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-pc-windows-msvc/release/deps/libnum_integer-ea7c07bb46a7787d.rlib: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/roots.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/average.rs
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-pc-windows-msvc/release/deps/libnum_integer-ea7c07bb46a7787d.rmeta: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/roots.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/average.rs
+
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/lib.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/roots.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/average.rs:
