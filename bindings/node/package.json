@@ -17,13 +17,25 @@
     "ecdsa",
     "sha256",
     "blake3",
-    "argon2"
+    "argon2",
+    "security",
+    "crypto",
+    "hash",
+    "hmac",
+    "pbkdf2",
+    "hkdf",
+    "digital-signatures",
+    "symmetric-encryption",
+    "asymmetric-encryption",
+    "key-derivation",
+    "secure-random"
   ],
   "author": "Nhan Dang <64256004+DangVTNhan@users.noreply.github.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DangVTNhan/libsilver.git"
+    "url": "git+https://github.com/DangVTNhan/libsilver.git",
+    "directory": "bindings/node"
   },
   "bugs": {
     "url": "https://github.com/DangVTNhan/libsilver/issues"
@@ -32,11 +44,11 @@
   "napi": {
     "name": "libsilver",
     "triples": {
-      "defaults": true,
+      "defaults": false,
       "additional": [
-        "x86_64-pc-windows-msvc",
         "x86_64-apple-darwin",
         "aarch64-apple-darwin",
+        "x86_64-pc-windows-msvc",
         "x86_64-unknown-linux-gnu",
         "aarch64-unknown-linux-gnu"
       ]
@@ -45,22 +57,26 @@
   "files": [
     "index.js",
     "index.d.ts",
-    "*.node"
+    "*.node",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
-    "build:all": "napi build --platform --release --target x86_64-pc-windows-msvc --target x86_64-apple-darwin --target aarch64-apple-darwin --target x86_64-unknown-linux-gnu --target aarch64-unknown-linux-gnu",
+    "build:all": "napi build --platform --release --target x86_64-apple-darwin --target aarch64-apple-darwin --target x86_64-pc-windows-msvc --target x86_64-unknown-linux-gnu --target aarch64-unknown-linux-gnu",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "node test/test.js",
+    "example": "node examples/nodejs-example.js",
+    "clean": "rm -rf target/ *.node",
     "version": "napi version"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.0"
   },
   "engines": {
-    "node": ">= 10"
+    "node": ">= 14"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

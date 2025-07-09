@@ -1,0 +1,9 @@
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-apple-darwin/release/deps/num_integer-3888e2894792870e.d: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/roots.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/average.rs
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-apple-darwin/release/deps/libnum_integer-3888e2894792870e.rlib: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/roots.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/average.rs
+
+/Users/adminprimetech.com.vn/RustroverProjects/libsiver/bindings/node/target/aarch64-apple-darwin/release/deps/libnum_integer-3888e2894792870e.rmeta: /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/lib.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/roots.rs /Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/average.rs
+
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/lib.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/roots.rs:
+/Users/adminprimetech.com.vn/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-integer-0.1.46/src/average.rs:

@@ -18,9 +18,9 @@ rm -f *.node
 echo "📦 Installing dependencies..."
 npm install
 
-# Build for current platform
-echo "🏗️ Building for current platform..."
-npm run build
+# Build for macOS platforms
+echo "🏗️ Building for macOS platforms..."
+npm run build:all
 
 # Run tests
 echo "🧪 Running tests..."
