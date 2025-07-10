@@ -131,16 +131,7 @@ impl Pbkdf2Kdf {
     }
 }
 
-/// Trait for key derivation functions
-pub trait KeyDerivationFunction {
-    fn derive_key(password: &[u8], salt: &[u8], output_length: usize) -> CryptoResult<Vec<u8>>;
-}
 
-impl KeyDerivationFunction for Argon2Kdf {
-    fn derive_key(password: &[u8], salt: &[u8], output_length: usize) -> CryptoResult<Vec<u8>> {
-        Self::derive_key(password, salt, output_length)
-    }
-}
 
 /// Secure key derivation with automatic salt generation
 pub struct SecureKeyDerivation;

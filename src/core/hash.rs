@@ -131,54 +131,7 @@ impl Hmac {
     }
 }
 
-/// Trait for hash operations
-pub trait HashFunction {
-    fn hash(data: &[u8]) -> CryptoResult<Vec<u8>>;
-    fn hash_hex(data: &[u8]) -> CryptoResult<String>;
-    fn verify(data: &[u8], expected_hash: &[u8]) -> CryptoResult<bool>;
-}
 
-impl HashFunction for Sha256Hash {
-    fn hash(data: &[u8]) -> CryptoResult<Vec<u8>> {
-        Self::hash(data)
-    }
-
-    fn hash_hex(data: &[u8]) -> CryptoResult<String> {
-        Self::hash_hex(data)
-    }
-
-    fn verify(data: &[u8], expected_hash: &[u8]) -> CryptoResult<bool> {
-        Self::verify(data, expected_hash)
-    }
-}
-
-impl HashFunction for Sha512Hash {
-    fn hash(data: &[u8]) -> CryptoResult<Vec<u8>> {
-        Self::hash(data)
-    }
-
-    fn hash_hex(data: &[u8]) -> CryptoResult<String> {
-        Self::hash_hex(data)
-    }
-
-    fn verify(data: &[u8], expected_hash: &[u8]) -> CryptoResult<bool> {
-        Self::verify(data, expected_hash)
-    }
-}
-
-impl HashFunction for Blake3Hash {
-    fn hash(data: &[u8]) -> CryptoResult<Vec<u8>> {
-        Self::hash(data)
-    }
-
-    fn hash_hex(data: &[u8]) -> CryptoResult<String> {
-        Self::hash_hex(data)
-    }
-
-    fn verify(data: &[u8], expected_hash: &[u8]) -> CryptoResult<bool> {
-        Self::verify(data, expected_hash)
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -274,18 +227,7 @@ mod tests {
         assert!(!Hmac::verify_sha512(b"wrong_key", message, &mac).unwrap());
     }
 
-    #[test]
-    fn test_hash_function_trait() {
-        let data = b"Testing trait implementation";
 
-        let sha256_hash = <Sha256Hash as HashFunction>::hash(data).unwrap();
-        let sha512_hash = <Sha512Hash as HashFunction>::hash(data).unwrap();
-        let blake3_hash = <Blake3Hash as HashFunction>::hash(data).unwrap();
-
-        assert_eq!(sha256_hash.len(), 32);
-        assert_eq!(sha512_hash.len(), 64);
-        assert_eq!(blake3_hash.len(), 32);
-    }
 
     #[test]
     fn test_empty_data_hash() {

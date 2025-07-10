@@ -147,40 +147,7 @@ impl ChaCha20Poly1305Cipher {
     }
 }
 
-/// Trait for symmetric encryption operations
-pub trait SymmetricCipher {
-    fn encrypt(plaintext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>>;
-    fn decrypt(ciphertext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>>;
-    fn generate_key() -> CryptoResult<Vec<u8>>;
-}
 
-impl SymmetricCipher for AesGcm {
-    fn encrypt(plaintext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
-        Self::encrypt(plaintext, key)
-    }
-
-    fn decrypt(ciphertext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
-        Self::decrypt(ciphertext, key)
-    }
-
-    fn generate_key() -> CryptoResult<Vec<u8>> {
-        Self::generate_key()
-    }
-}
-
-impl SymmetricCipher for ChaCha20Poly1305Cipher {
-    fn encrypt(plaintext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
-        Self::encrypt(plaintext, key)
-    }
-
-    fn decrypt(ciphertext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
-        Self::decrypt(ciphertext, key)
-    }
-
-    fn generate_key() -> CryptoResult<Vec<u8>> {
-        Self::generate_key()
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -256,14 +223,5 @@ mod tests {
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_symmetric_cipher_trait() {
-        let key = AesGcm::generate_key().unwrap();
-        let plaintext = b"Testing trait implementation";
 
-        let ciphertext = <AesGcm as SymmetricCipher>::encrypt(plaintext, &key).unwrap();
-        let decrypted = <AesGcm as SymmetricCipher>::decrypt(&ciphertext, &key).unwrap();
-
-        assert_eq!(decrypted, plaintext);
-    }
 }

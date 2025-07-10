@@ -290,81 +290,9 @@ impl Ed25519Crypto {
     }
 }
 
-/// Trait for asymmetric encryption operations
-pub trait AsymmetricCipher {
-    type KeyPair;
-    type PublicKey;
-    type PrivateKey;
 
-    fn generate_keypair() -> CryptoResult<Self::KeyPair>;
-    fn encrypt(plaintext: &[u8], public_key: &Self::PublicKey) -> CryptoResult<Vec<u8>>;
-    fn decrypt(ciphertext: &[u8], private_key: &Self::PrivateKey) -> CryptoResult<Vec<u8>>;
-}
 
-impl AsymmetricCipher for RsaCrypto {
-    type KeyPair = RsaKeyPair;
-    type PublicKey = RsaPublicKey;
-    type PrivateKey = RsaPrivateKey;
 
-    fn generate_keypair() -> CryptoResult<Self::KeyPair> {
-        Self::generate_keypair()
-    }
-
-    fn encrypt(plaintext: &[u8], public_key: &Self::PublicKey) -> CryptoResult<Vec<u8>> {
-        Self::encrypt(plaintext, public_key)
-    }
-
-    fn decrypt(ciphertext: &[u8], private_key: &Self::PrivateKey) -> CryptoResult<Vec<u8>> {
-        Self::decrypt(ciphertext, private_key)
-    }
-}
-
-/// Trait for digital signature operations
-pub trait DigitalSignature {
-    type KeyPair;
-    type SigningKey;
-    type VerifyingKey;
-
-    fn generate_keypair() -> CryptoResult<Self::KeyPair>;
-    fn sign(message: &[u8], signing_key: &Self::SigningKey) -> CryptoResult<Vec<u8>>;
-    fn verify(message: &[u8], signature: &[u8], verifying_key: &Self::VerifyingKey) -> CryptoResult<bool>;
-}
-
-impl DigitalSignature for EcdsaCrypto {
-    type KeyPair = EcdsaKeyPair;
-    type SigningKey = SigningKey;
-    type VerifyingKey = VerifyingKey;
-
-    fn generate_keypair() -> CryptoResult<Self::KeyPair> {
-        Self::generate_keypair()
-    }
-
-    fn sign(message: &[u8], signing_key: &Self::SigningKey) -> CryptoResult<Vec<u8>> {
-        Self::sign(message, signing_key)
-    }
-
-    fn verify(message: &[u8], signature: &[u8], verifying_key: &Self::VerifyingKey) -> CryptoResult<bool> {
-        Self::verify(message, signature, verifying_key)
-    }
-}
-
-impl DigitalSignature for Ed25519Crypto {
-    type KeyPair = Ed25519KeyPair;
-    type SigningKey = Ed25519SigningKey;
-    type VerifyingKey = Ed25519VerifyingKey;
-
-    fn generate_keypair() -> CryptoResult<Self::KeyPair> {
-        Self::generate_keypair()
-    }
-
-    fn sign(message: &[u8], signing_key: &Self::SigningKey) -> CryptoResult<Vec<u8>> {
-        Self::sign(message, signing_key)
-    }
-
-    fn verify(message: &[u8], signature: &[u8], verifying_key: &Self::VerifyingKey) -> CryptoResult<bool> {
-        Self::verify(message, signature, verifying_key)
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -497,25 +425,5 @@ mod tests {
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_asymmetric_cipher_trait() {
-        let keypair = <RsaCrypto as AsymmetricCipher>::generate_keypair().unwrap();
-        let plaintext = b"Testing trait implementation";
 
-        let ciphertext = <RsaCrypto as AsymmetricCipher>::encrypt(plaintext, keypair.public_key()).unwrap();
-        let decrypted = <RsaCrypto as AsymmetricCipher>::decrypt(&ciphertext, keypair.private_key()).unwrap();
-
-        assert_eq!(decrypted, plaintext);
-    }
-
-    #[test]
-    fn test_digital_signature_trait() {
-        let keypair = <EcdsaCrypto as DigitalSignature>::generate_keypair().unwrap();
-        let message = b"Testing trait implementation";
-
-        let signature = <EcdsaCrypto as DigitalSignature>::sign(message, keypair.signing_key()).unwrap();
-        let is_valid = <EcdsaCrypto as DigitalSignature>::verify(message, &signature, keypair.verifying_key()).unwrap();
-
-        assert!(is_valid);
-    }
 }

@@ -1,0 +1,26 @@
+{
+  "name": "libsilver-benchmark",
+  "version": "1.0.0",
+  "description": "Performance and memory benchmarks for LibSilver vs Node.js crypto vs @noble/ciphers",
+  "main": "benchmark.js",
+  "type": "module",
+  "scripts": {
+    "benchmark": "node benchmark.js",
+    "memory": "node --expose-gc memory-benchmark.js",
+    "analysis": "node analysis.js",
+    "quick": "node run-all.js",
+    "all": "npm run analysis && npm run memory && npm run benchmark"
+  },
+  "dependencies": {
+    "@noble/ciphers": "^0.5.3",
+    "benchmark": "^2.1.4",
+    "libsilver-nodejs": "file:.."
+  },
+  "devDependencies": {
+    "clinic": "^13.0.0",
+    "autocannon": "^7.15.0"
+  },
+  "engines": {
+    "node": ">= 16"
+  }
+}
