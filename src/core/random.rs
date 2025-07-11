@@ -1,4 +1,4 @@
-use crate::error::{CryptoError, CryptoResult};
+use crate::error::{CryptoError, CryptoResult, ZERO_LENGTH_INPUT, RANDOM_GENERATION_FAILED};
 use rand::RngCore;
 use rand::rngs::OsRng;
 use zeroize::Zeroize;
@@ -10,38 +10,43 @@ impl SecureRandom {
     /// Generate random bytes using the OS random number generator
     pub fn generate_bytes(length: usize) -> CryptoResult<Vec<u8>> {
         if length == 0 {
-            return Err(CryptoError::InvalidInput("Length cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(ZERO_LENGTH_INPUT));
         }
 
         let mut bytes = vec![0u8; length];
         OsRng.try_fill_bytes(&mut bytes)
-            .map_err(|e| CryptoError::RandomGenerationFailed(format!("Failed to generate random bytes: {}", e)))?;
+            .map_err(|_| CryptoError::RandomGenerationFailed(RANDOM_GENERATION_FAILED))?;
 
         Ok(bytes)
     }
 
     /// Generate a random u32
+    #[inline]
     pub fn generate_u32() -> CryptoResult<u32> {
         Ok(OsRng.next_u32())
     }
 
     /// Generate a random u64
+    #[inline]
     pub fn generate_u64() -> CryptoResult<u64> {
         Ok(OsRng.next_u64())
     }
 
     /// Generate a cryptographically secure random key of specified length
+    #[inline]
     pub fn generate_key(length: usize) -> CryptoResult<SecureKey> {
         let bytes = Self::generate_bytes(length)?;
         Ok(SecureKey::new(bytes))
     }
 
     /// Generate a random nonce/IV of specified length
+    #[inline]
     pub fn generate_nonce(length: usize) -> CryptoResult<Vec<u8>> {
         Self::generate_bytes(length)
     }
 
     /// Generate a random salt for password hashing
+    #[inline]
     pub fn generate_salt() -> CryptoResult<Vec<u8>> {
         Self::generate_bytes(32) // 256-bit salt
     }
@@ -55,26 +60,31 @@ pub struct SecureKey {
 
 impl SecureKey {
     /// Create a new secure key from bytes
+    #[inline]
     pub fn new(data: Vec<u8>) -> Self {
         Self { data }
     }
 
     /// Get the key data as a slice
+    #[inline]
     pub fn as_bytes(&self) -> &[u8] {
         &self.data
     }
 
     /// Get the length of the key
+    #[inline]
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
     /// Check if the key is empty
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
 
     /// Convert to Vec<u8> (consumes the SecureKey)
+    #[inline]
     pub fn into_bytes(mut self) -> Vec<u8> {
         std::mem::take(&mut self.data)
     }

@@ -3,9 +3,12 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/bindings/node/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/bindings/node/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/bindings/node/target" />
       <excludeFolder url="file://$MODULE_DIR$/bindings/node/target/aarch64-apple-darwin/release/build/curve25519-dalek-66b18d8b2e006dfc/out" />
       <excludeFolder url="file://$MODULE_DIR$/bindings/node/target/aarch64-apple-darwin/release/build/generic-array-047f7a34dd5fa756/out" />
       <excludeFolder url="file://$MODULE_DIR$/bindings/node/target/aarch64-apple-darwin/release/build/libc-3186b75ebf7eea1b/out" />

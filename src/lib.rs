@@ -57,41 +57,61 @@ pub mod crypto {
     use crate::prelude::*;
 
     /// High-level symmetric encryption using AES-256-GCM
+    #[inline]
     pub fn encrypt_aes(plaintext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
         AesGcm::encrypt(plaintext, key)
     }
 
     /// High-level symmetric decryption using AES-256-GCM
+    #[inline]
     pub fn decrypt_aes(ciphertext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
         AesGcm::decrypt(ciphertext, key)
     }
 
+    /// High-level symmetric encryption using AES-256-GCM with additional authenticated data
+    #[inline]
+    pub fn encrypt_aes_with_aad(plaintext: &[u8], key: &[u8], aad: &[u8]) -> CryptoResult<Vec<u8>> {
+        AesGcm::encrypt_with_aad(plaintext, key, aad)
+    }
+
+    /// High-level symmetric decryption using AES-256-GCM with additional authenticated data
+    #[inline]
+    pub fn decrypt_aes_with_aad(ciphertext: &[u8], key: &[u8], aad: &[u8]) -> CryptoResult<Vec<u8>> {
+        AesGcm::decrypt_with_aad(ciphertext, key, aad)
+    }
+
     /// High-level symmetric encryption using ChaCha20-Poly1305
+    #[inline]
     pub fn encrypt_chacha20(plaintext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
         ChaCha20Poly1305Cipher::encrypt(plaintext, key)
     }
 
     /// High-level symmetric decryption using ChaCha20-Poly1305
+    #[inline]
     pub fn decrypt_chacha20(ciphertext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
         ChaCha20Poly1305Cipher::decrypt(ciphertext, key)
     }
 
     /// Generate a secure random key of specified length
+    #[inline]
     pub fn generate_key(length: usize) -> CryptoResult<Vec<u8>> {
         SecureRandom::generate_bytes(length)
     }
 
     /// Hash data using SHA-256
+    #[inline]
     pub fn hash_sha256(data: &[u8]) -> CryptoResult<Vec<u8>> {
         Sha256Hash::hash(data)
     }
 
     /// Hash data using BLAKE3
+    #[inline]
     pub fn hash_blake3(data: &[u8]) -> CryptoResult<Vec<u8>> {
         Blake3Hash::hash(data)
     }
 
     /// Derive key from password using Argon2
+    #[inline]
     pub fn derive_key_argon2(password: &[u8], salt: &[u8], length: usize) -> CryptoResult<Vec<u8>> {
         Argon2Kdf::derive_key(password, salt, length)
     }

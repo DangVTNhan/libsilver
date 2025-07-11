@@ -1,4 +1,4 @@
-use crate::error::{CryptoError, CryptoResult};
+use crate::error::{CryptoError, CryptoResult, HASH_LENGTH_ZERO, INVALID_HMAC_KEY};
 use sha2::{Sha256, Sha512, Digest};
 use blake3::Hasher as Blake3Hasher;
 
@@ -7,6 +7,7 @@ pub struct Sha256Hash;
 
 impl Sha256Hash {
     /// Compute SHA-256 hash of input data
+    #[inline]
     pub fn hash(data: &[u8]) -> CryptoResult<Vec<u8>> {
         let mut hasher = Sha256::new();
         hasher.update(data);
@@ -14,12 +15,15 @@ impl Sha256Hash {
     }
 
     /// Compute SHA-256 hash and return as hex string
+    #[inline]
     pub fn hash_hex(data: &[u8]) -> CryptoResult<String> {
-        let hash = Self::hash(data)?;
-        Ok(hex::encode(hash))
+        let mut hasher = Sha256::new();
+        hasher.update(data);
+        Ok(hex::encode(hasher.finalize()))
     }
 
     /// Verify data against a SHA-256 hash
+    #[inline]
     pub fn verify(data: &[u8], expected_hash: &[u8]) -> CryptoResult<bool> {
         let computed_hash = Self::hash(data)?;
         Ok(computed_hash == expected_hash)
@@ -31,6 +35,7 @@ pub struct Sha512Hash;
 
 impl Sha512Hash {
     /// Compute SHA-512 hash of input data
+    #[inline]
     pub fn hash(data: &[u8]) -> CryptoResult<Vec<u8>> {
         let mut hasher = Sha512::new();
         hasher.update(data);
@@ -38,12 +43,15 @@ impl Sha512Hash {
     }
 
     /// Compute SHA-512 hash and return as hex string
+    #[inline]
     pub fn hash_hex(data: &[u8]) -> CryptoResult<String> {
-        let hash = Self::hash(data)?;
-        Ok(hex::encode(hash))
+        let mut hasher = Sha512::new();
+        hasher.update(data);
+        Ok(hex::encode(hasher.finalize()))
     }
 
     /// Verify data against a SHA-512 hash
+    #[inline]
     pub fn verify(data: &[u8], expected_hash: &[u8]) -> CryptoResult<bool> {
         let computed_hash = Self::hash(data)?;
         Ok(computed_hash == expected_hash)
@@ -55,27 +63,31 @@ pub struct Blake3Hash;
 
 impl Blake3Hash {
     /// Compute BLAKE3 hash of input data
+    #[inline]
     pub fn hash(data: &[u8]) -> CryptoResult<Vec<u8>> {
         let hash = blake3::hash(data);
         Ok(hash.as_bytes().to_vec())
     }
 
     /// Compute BLAKE3 hash and return as hex string
+    #[inline]
     pub fn hash_hex(data: &[u8]) -> CryptoResult<String> {
-        let hash = Self::hash(data)?;
-        Ok(hex::encode(hash))
+        let hash = blake3::hash(data);
+        Ok(hex::encode(hash.as_bytes()))
     }
 
     /// Verify data against a BLAKE3 hash
+    #[inline]
     pub fn verify(data: &[u8], expected_hash: &[u8]) -> CryptoResult<bool> {
         let computed_hash = Self::hash(data)?;
         Ok(computed_hash == expected_hash)
     }
 
     /// Compute BLAKE3 hash with custom output length
+    #[inline]
     pub fn hash_with_length(data: &[u8], length: usize) -> CryptoResult<Vec<u8>> {
         if length == 0 {
-            return Err(CryptoError::InvalidInput("Hash length cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(HASH_LENGTH_ZERO));
         }
 
         let mut hasher = Blake3Hasher::new();
@@ -91,6 +103,7 @@ pub struct Hmac;
 
 impl Hmac {
     /// Compute HMAC-SHA256
+    #[inline]
     pub fn sha256(key: &[u8], message: &[u8]) -> CryptoResult<Vec<u8>> {
         use sha2::Sha256;
         use hmac::{Hmac as HmacImpl, Mac};
@@ -98,13 +111,14 @@ impl Hmac {
         type HmacSha256 = HmacImpl<Sha256>;
 
         let mut mac = HmacSha256::new_from_slice(key)
-            .map_err(|e| CryptoError::InvalidKey(format!("Invalid HMAC key: {}", e)))?;
+            .map_err(|_| CryptoError::InvalidKey(INVALID_HMAC_KEY))?;
 
         mac.update(message);
         Ok(mac.finalize().into_bytes().to_vec())
     }
 
     /// Compute HMAC-SHA512
+    #[inline]
     pub fn sha512(key: &[u8], message: &[u8]) -> CryptoResult<Vec<u8>> {
         use sha2::Sha512;
         use hmac::{Hmac as HmacImpl, Mac};
@@ -112,19 +126,21 @@ impl Hmac {
         type HmacSha512 = HmacImpl<Sha512>;
 
         let mut mac = HmacSha512::new_from_slice(key)
-            .map_err(|e| CryptoError::InvalidKey(format!("Invalid HMAC key: {}", e)))?;
+            .map_err(|_| CryptoError::InvalidKey(INVALID_HMAC_KEY))?;
 
         mac.update(message);
         Ok(mac.finalize().into_bytes().to_vec())
     }
 
     /// Verify HMAC-SHA256
+    #[inline]
     pub fn verify_sha256(key: &[u8], message: &[u8], expected_mac: &[u8]) -> CryptoResult<bool> {
         let computed_mac = Self::sha256(key, message)?;
         Ok(computed_mac == expected_mac)
     }
 
     /// Verify HMAC-SHA512
+    #[inline]
     pub fn verify_sha512(key: &[u8], message: &[u8], expected_mac: &[u8]) -> CryptoResult<bool> {
         let computed_mac = Self::sha512(key, message)?;
         Ok(computed_mac == expected_mac)

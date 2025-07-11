@@ -1,4 +1,4 @@
-use crate::error::{CryptoError, CryptoResult};
+use crate::error::{CryptoError, CryptoResult, RSA_KEY_SIZE_TOO_SMALL, RSA_KEY_GENERATION_FAILED, RSA_ENCRYPTION_FAILED, RSA_DECRYPTION_FAILED, PRIVATE_KEY_ENCODING_FAILED, PUBLIC_KEY_ENCODING_FAILED, PRIVATE_KEY_DECODING_FAILED, PUBLIC_KEY_DECODING_FAILED, INVALID_ECDSA_PRIVATE_KEY, INVALID_ECDSA_PUBLIC_KEY, INVALID_SIGNATURE_FORMAT, ED25519_PRIVATE_KEY_INVALID_SIZE, ED25519_PUBLIC_KEY_INVALID_SIZE, ED25519_SIGNATURE_INVALID_SIZE, INVALID_ED25519_PUBLIC_KEY};
 use rsa::{RsaPrivateKey, RsaPublicKey, Oaep, pkcs8::{EncodePrivateKey, EncodePublicKey, DecodePrivateKey, DecodePublicKey}};
 use rsa::sha2::Sha256;
 use p256::ecdsa::{SigningKey, VerifyingKey, Signature, signature::{Signer, Verifier}};
@@ -17,11 +17,11 @@ impl RsaKeyPair {
     /// Generate a new RSA key pair with specified bit size
     pub fn generate(bits: usize) -> CryptoResult<Self> {
         if bits < 2048 {
-            return Err(CryptoError::InvalidInput("RSA key size must be at least 2048 bits".to_string()));
+            return Err(CryptoError::InvalidInput(RSA_KEY_SIZE_TOO_SMALL));
         }
 
         let private_key = RsaPrivateKey::new(&mut OsRng, bits)
-            .map_err(|e| CryptoError::KeyGenerationFailed(format!("RSA key generation failed: {}", e)))?;
+            .map_err(|_| CryptoError::KeyGenerationFailed(RSA_KEY_GENERATION_FAILED))?;
 
         let public_key = RsaPublicKey::from(&private_key);
 
@@ -32,11 +32,13 @@ impl RsaKeyPair {
     }
 
     /// Get the public key
+    #[inline]
     pub fn public_key(&self) -> &RsaPublicKey {
         &self.public_key
     }
 
     /// Get the private key
+    #[inline]
     pub fn private_key(&self) -> &RsaPrivateKey {
         &self.private_key
     }
@@ -44,20 +46,20 @@ impl RsaKeyPair {
     /// Export private key as PEM
     pub fn private_key_pem(&self) -> CryptoResult<String> {
         self.private_key.to_pkcs8_pem(rsa::pkcs8::LineEnding::LF)
-            .map_err(|e| CryptoError::EncodingFailed(format!("Failed to encode private key: {}", e)))
+            .map_err(|_| CryptoError::EncodingFailed(PRIVATE_KEY_ENCODING_FAILED))
             .map(|pem| pem.to_string())
     }
 
     /// Export public key as PEM
     pub fn public_key_pem(&self) -> CryptoResult<String> {
         self.public_key.to_public_key_pem(rsa::pkcs8::LineEnding::LF)
-            .map_err(|e| CryptoError::EncodingFailed(format!("Failed to encode public key: {}", e)))
+            .map_err(|_| CryptoError::EncodingFailed(PUBLIC_KEY_ENCODING_FAILED))
     }
 
     /// Import private key from PEM
     pub fn from_private_key_pem(pem: &str) -> CryptoResult<Self> {
         let private_key = RsaPrivateKey::from_pkcs8_pem(pem)
-            .map_err(|e| CryptoError::InvalidKey(format!("Failed to decode private key: {}", e)))?;
+            .map_err(|_| CryptoError::InvalidKey(PRIVATE_KEY_DECODING_FAILED))?;
 
         let public_key = RsaPublicKey::from(&private_key);
 
@@ -70,7 +72,7 @@ impl RsaKeyPair {
     /// Import public key from PEM
     pub fn from_public_key_pem(pem: &str) -> CryptoResult<RsaPublicKey> {
         RsaPublicKey::from_public_key_pem(pem)
-            .map_err(|e| CryptoError::InvalidKey(format!("Failed to decode public key: {}", e)))
+            .map_err(|_| CryptoError::InvalidKey(PUBLIC_KEY_DECODING_FAILED))
     }
 }
 
@@ -79,11 +81,13 @@ pub struct RsaCrypto;
 
 impl RsaCrypto {
     /// Generate a new RSA-2048 key pair
+    #[inline]
     pub fn generate_keypair() -> CryptoResult<RsaKeyPair> {
         RsaKeyPair::generate(2048)
     }
 
     /// Generate a new RSA key pair with custom bit size
+    #[inline]
     pub fn generate_keypair_with_size(bits: usize) -> CryptoResult<RsaKeyPair> {
         RsaKeyPair::generate(bits)
     }
@@ -93,7 +97,7 @@ impl RsaCrypto {
         let padding = Oaep::new::<Sha256>();
 
         public_key.encrypt(&mut OsRng, padding, plaintext)
-            .map_err(|e| CryptoError::EncryptionFailed(format!("RSA encryption failed: {}", e)))
+            .map_err(|_| CryptoError::EncryptionFailed(RSA_ENCRYPTION_FAILED))
     }
 
     /// Decrypt data using RSA-OAEP
@@ -101,7 +105,7 @@ impl RsaCrypto {
         let padding = Oaep::new::<Sha256>();
 
         private_key.decrypt(padding, ciphertext)
-            .map_err(|e| CryptoError::DecryptionFailed(format!("RSA decryption failed: {}", e)))
+            .map_err(|_| CryptoError::DecryptionFailed(RSA_DECRYPTION_FAILED))
     }
 }
 
@@ -125,21 +129,25 @@ impl EcdsaKeyPair {
     }
 
     /// Get the verifying key (public key)
+    #[inline]
     pub fn verifying_key(&self) -> &VerifyingKey {
         &self.verifying_key
     }
 
     /// Get the signing key (private key)
+    #[inline]
     pub fn signing_key(&self) -> &SigningKey {
         &self.signing_key
     }
 
     /// Export private key bytes
+    #[inline]
     pub fn private_key_bytes(&self) -> Vec<u8> {
         self.signing_key.to_bytes().to_vec()
     }
 
     /// Export public key bytes
+    #[inline]
     pub fn public_key_bytes(&self) -> Vec<u8> {
         self.verifying_key.to_encoded_point(false).as_bytes().to_vec()
     }
@@ -147,7 +155,7 @@ impl EcdsaKeyPair {
     /// Import from private key bytes
     pub fn from_private_key_bytes(bytes: &[u8]) -> CryptoResult<Self> {
         let signing_key = SigningKey::from_slice(bytes)
-            .map_err(|e| CryptoError::InvalidKey(format!("Invalid ECDSA private key: {}", e)))?;
+            .map_err(|_| CryptoError::InvalidKey(INVALID_ECDSA_PRIVATE_KEY))?;
 
         let verifying_key = VerifyingKey::from(&signing_key);
 
@@ -160,7 +168,7 @@ impl EcdsaKeyPair {
     /// Import verifying key from bytes
     pub fn verifying_key_from_bytes(bytes: &[u8]) -> CryptoResult<VerifyingKey> {
         VerifyingKey::from_sec1_bytes(bytes)
-            .map_err(|e| CryptoError::InvalidKey(format!("Invalid ECDSA public key: {}", e)))
+            .map_err(|_| CryptoError::InvalidKey(INVALID_ECDSA_PUBLIC_KEY))
     }
 }
 
@@ -169,6 +177,7 @@ pub struct EcdsaCrypto;
 
 impl EcdsaCrypto {
     /// Generate a new ECDSA P-256 key pair
+    #[inline]
     pub fn generate_keypair() -> CryptoResult<EcdsaKeyPair> {
         EcdsaKeyPair::generate()
     }
@@ -182,7 +191,7 @@ impl EcdsaCrypto {
     /// Verify ECDSA P-256 signature
     pub fn verify(message: &[u8], signature: &[u8], verifying_key: &VerifyingKey) -> CryptoResult<bool> {
         let signature = Signature::from_slice(signature)
-            .map_err(|e| CryptoError::InvalidInput(format!("Invalid signature format: {}", e)))?;
+            .map_err(|_| CryptoError::InvalidInput(INVALID_SIGNATURE_FORMAT))?;
 
         match verifying_key.verify(message, &signature) {
             Ok(()) => Ok(true),
@@ -215,21 +224,25 @@ impl Ed25519KeyPair {
     }
 
     /// Get the verifying key (public key)
+    #[inline]
     pub fn verifying_key(&self) -> &Ed25519VerifyingKey {
         &self.verifying_key
     }
 
     /// Get the signing key (private key)
+    #[inline]
     pub fn signing_key(&self) -> &Ed25519SigningKey {
         &self.signing_key
     }
 
     /// Export private key bytes
+    #[inline]
     pub fn private_key_bytes(&self) -> Vec<u8> {
         self.signing_key.to_bytes().to_vec()
     }
 
     /// Export public key bytes
+    #[inline]
     pub fn public_key_bytes(&self) -> Vec<u8> {
         self.verifying_key.to_bytes().to_vec()
     }
@@ -237,7 +250,7 @@ impl Ed25519KeyPair {
     /// Import from private key bytes
     pub fn from_private_key_bytes(bytes: &[u8]) -> CryptoResult<Self> {
         if bytes.len() != 32 {
-            return Err(CryptoError::InvalidKey("Ed25519 private key must be 32 bytes".to_string()));
+            return Err(CryptoError::InvalidKey(ED25519_PRIVATE_KEY_INVALID_SIZE));
         }
 
         let signing_key = Ed25519SigningKey::from_bytes(bytes.try_into().unwrap());
@@ -252,11 +265,11 @@ impl Ed25519KeyPair {
     /// Import verifying key from bytes
     pub fn verifying_key_from_bytes(bytes: &[u8]) -> CryptoResult<Ed25519VerifyingKey> {
         if bytes.len() != 32 {
-            return Err(CryptoError::InvalidKey("Ed25519 public key must be 32 bytes".to_string()));
+            return Err(CryptoError::InvalidKey(ED25519_PUBLIC_KEY_INVALID_SIZE));
         }
 
         Ed25519VerifyingKey::from_bytes(bytes.try_into().unwrap())
-            .map_err(|e| CryptoError::InvalidKey(format!("Invalid Ed25519 public key: {}", e)))
+            .map_err(|_| CryptoError::InvalidKey(INVALID_ED25519_PUBLIC_KEY))
     }
 }
 
@@ -265,6 +278,7 @@ pub struct Ed25519Crypto;
 
 impl Ed25519Crypto {
     /// Generate a new Ed25519 key pair
+    #[inline]
     pub fn generate_keypair() -> CryptoResult<Ed25519KeyPair> {
         Ed25519KeyPair::generate()
     }
@@ -278,7 +292,7 @@ impl Ed25519Crypto {
     /// Verify Ed25519 signature
     pub fn verify(message: &[u8], signature: &[u8], verifying_key: &Ed25519VerifyingKey) -> CryptoResult<bool> {
         if signature.len() != 64 {
-            return Err(CryptoError::InvalidInput("Ed25519 signature must be 64 bytes".to_string()));
+            return Err(CryptoError::InvalidInput(ED25519_SIGNATURE_INVALID_SIZE));
         }
 
         let signature = Ed25519Signature::from_bytes(signature.try_into().unwrap());

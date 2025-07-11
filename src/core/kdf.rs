@@ -1,4 +1,4 @@
-use crate::error::{CryptoError, CryptoResult};
+use crate::error::{CryptoError, CryptoResult, ZERO_OUTPUT_LENGTH, ZERO_ITERATIONS, ARGON2_DERIVATION_FAILED, HKDF_SHA256_FAILED, HKDF_SHA512_FAILED, SALT_ENCODING_FAILED, ARGON2_HASHING_FAILED, INVALID_HASH_FORMAT};
 use crate::core::random::SecureRandom;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use hkdf::Hkdf;
@@ -22,10 +22,10 @@ impl Argon2Kdf {
 
         let argon2 = Argon2::default();
         let salt_string = SaltString::encode_b64(salt)
-            .map_err(|e| CryptoError::KeyDerivationFailed(format!("Salt encoding failed: {}", e)))?;
+            .map_err(|_| CryptoError::KeyDerivationFailed(SALT_ENCODING_FAILED))?;
 
         let password_hash = argon2.hash_password(password, &salt_string)
-            .map_err(|e| CryptoError::KeyDerivationFailed(format!("Argon2 hashing failed: {}", e)))?;
+            .map_err(|_| CryptoError::KeyDerivationFailed(ARGON2_HASHING_FAILED))?;
 
         Ok(password_hash.to_string())
     }
@@ -35,7 +35,7 @@ impl Argon2Kdf {
         let argon2 = Argon2::default();
 
         let parsed_hash = PasswordHash::new(hash)
-            .map_err(|e| CryptoError::InvalidInput(format!("Invalid hash format: {}", e)))?;
+            .map_err(|_| CryptoError::InvalidInput(INVALID_HASH_FORMAT))?;
 
         match argon2.verify_password(password, &parsed_hash) {
             Ok(()) => Ok(true),
@@ -46,14 +46,14 @@ impl Argon2Kdf {
     /// Derive a key from password using Argon2
     pub fn derive_key(password: &[u8], salt: &[u8], output_length: usize) -> CryptoResult<Vec<u8>> {
         if output_length == 0 {
-            return Err(CryptoError::InvalidInput("Output length cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(ZERO_OUTPUT_LENGTH));
         }
 
         let mut output = vec![0u8; output_length];
 
         argon2::Argon2::default()
             .hash_password_into(password, salt, &mut output)
-            .map_err(|e| CryptoError::KeyDerivationFailed(format!("Argon2 key derivation failed: {}", e)))?;
+            .map_err(|_| CryptoError::KeyDerivationFailed(ARGON2_DERIVATION_FAILED))?;
 
         Ok(output)
     }
@@ -64,31 +64,33 @@ pub struct HkdfKdf;
 
 impl HkdfKdf {
     /// Derive key using HKDF-SHA256
+    #[inline]
     pub fn derive_sha256(ikm: &[u8], salt: Option<&[u8]>, info: &[u8], length: usize) -> CryptoResult<Vec<u8>> {
         if length == 0 {
-            return Err(CryptoError::InvalidInput("Output length cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(ZERO_OUTPUT_LENGTH));
         }
 
         let hk = Hkdf::<Sha256>::new(salt, ikm);
         let mut okm = vec![0u8; length];
 
         hk.expand(info, &mut okm)
-            .map_err(|e| CryptoError::KeyDerivationFailed(format!("HKDF-SHA256 failed: {:?}", e)))?;
+            .map_err(|_| CryptoError::KeyDerivationFailed(HKDF_SHA256_FAILED))?;
 
         Ok(okm)
     }
 
     /// Derive key using HKDF-SHA512
+    #[inline]
     pub fn derive_sha512(ikm: &[u8], salt: Option<&[u8]>, info: &[u8], length: usize) -> CryptoResult<Vec<u8>> {
         if length == 0 {
-            return Err(CryptoError::InvalidInput("Output length cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(ZERO_OUTPUT_LENGTH));
         }
 
         let hk = Hkdf::<Sha512>::new(salt, ikm);
         let mut okm = vec![0u8; length];
 
         hk.expand(info, &mut okm)
-            .map_err(|e| CryptoError::KeyDerivationFailed(format!("HKDF-SHA512 failed: {:?}", e)))?;
+            .map_err(|_| CryptoError::KeyDerivationFailed(HKDF_SHA512_FAILED))?;
 
         Ok(okm)
     }
@@ -99,13 +101,14 @@ pub struct Pbkdf2Kdf;
 
 impl Pbkdf2Kdf {
     /// Derive key using PBKDF2-HMAC-SHA256
+    #[inline]
     pub fn derive_sha256(password: &[u8], salt: &[u8], iterations: u32, length: usize) -> CryptoResult<Vec<u8>> {
         if length == 0 {
-            return Err(CryptoError::InvalidInput("Output length cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(ZERO_OUTPUT_LENGTH));
         }
 
         if iterations == 0 {
-            return Err(CryptoError::InvalidInput("Iterations cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(ZERO_ITERATIONS));
         }
 
         let mut output = vec![0u8; length];
@@ -115,13 +118,14 @@ impl Pbkdf2Kdf {
     }
 
     /// Derive key using PBKDF2-HMAC-SHA512
+    #[inline]
     pub fn derive_sha512(password: &[u8], salt: &[u8], iterations: u32, length: usize) -> CryptoResult<Vec<u8>> {
         if length == 0 {
-            return Err(CryptoError::InvalidInput("Output length cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(ZERO_OUTPUT_LENGTH));
         }
 
         if iterations == 0 {
-            return Err(CryptoError::InvalidInput("Iterations cannot be zero".to_string()));
+            return Err(CryptoError::InvalidInput(ZERO_ITERATIONS));
         }
 
         let mut output = vec![0u8; length];
@@ -138,6 +142,7 @@ pub struct SecureKeyDerivation;
 
 impl SecureKeyDerivation {
     /// Derive a key using Argon2 with random salt
+    #[inline]
     pub fn derive_argon2(password: &[u8], output_length: usize) -> CryptoResult<(Vec<u8>, Vec<u8>)> {
         let salt = SecureRandom::generate_salt()?;
         let key = Argon2Kdf::derive_key(password, &salt, output_length)?;
@@ -145,6 +150,7 @@ impl SecureKeyDerivation {
     }
 
     /// Derive a key using PBKDF2-SHA256 with random salt and recommended iterations
+    #[inline]
     pub fn derive_pbkdf2_sha256(password: &[u8], output_length: usize) -> CryptoResult<(Vec<u8>, Vec<u8>)> {
         let salt = SecureRandom::generate_salt()?;
         let iterations = 100_000; // OWASP recommended minimum
@@ -153,6 +159,7 @@ impl SecureKeyDerivation {
     }
 
     /// Derive a key using HKDF-SHA256 with random salt
+    #[inline]
     pub fn derive_hkdf_sha256(ikm: &[u8], info: &[u8], output_length: usize) -> CryptoResult<(Vec<u8>, Vec<u8>)> {
         let salt = SecureRandom::generate_salt()?;
         let key = HkdfKdf::derive_sha256(ikm, Some(&salt), info, output_length)?;
