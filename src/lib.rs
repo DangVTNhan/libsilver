@@ -8,6 +8,7 @@
 //! - **Symmetric Encryption**: AES-256-GCM, ChaCha20-Poly1305
 //! - **Asymmetric Encryption**: RSA-OAEP
 //! - **Digital Signatures**: ECDSA P-256, Ed25519
+//! - **Post-Quantum Cryptography**: ML-KEM (Key Encapsulation), ML-DSA (Digital Signatures)
 //! - **Hashing**: SHA-256, SHA-512, BLAKE3, HMAC
 //! - **Key Derivation**: Argon2, HKDF, PBKDF2
 //! - **Secure Random Generation**: OS-backed random number generation
@@ -36,6 +37,22 @@
 //! let data = b"Hash this data";
 //! let hash = Sha256Hash::hash(data)?;
 //! let hex_hash = Sha256Hash::hash_hex(data)?;
+//!
+//! // Post-quantum cryptography
+//! // ML-KEM-768 (Key Encapsulation Mechanism) - Recommended
+//! let kem_keypair = MlKem768::generate_keypair()?;
+//! let encapsulation = MlKem768::encapsulate(kem_keypair.public_key_bytes())?;
+//! let shared_secret = MlKem768::decapsulate(
+//!     &encapsulation.ciphertext,
+//!     kem_keypair.private_key_bytes(),
+//! )?;
+//!
+//! // ML-DSA-65 (Digital Signature Algorithm) - Recommended
+//! let dsa_keypair = MlDsa65::generate_keypair()?;
+//! let message = b"Post-quantum signature";
+//! let signature = MlDsa65::sign(message, dsa_keypair.private_key_bytes())?;
+//! let is_valid = MlDsa65::verify(message, &signature, dsa_keypair.public_key_bytes())?;
+//! assert!(is_valid);
 //!
 //! # Ok::<(), libsilver::error::CryptoError>(())
 //! ```
@@ -115,6 +132,118 @@ pub mod crypto {
     pub fn derive_key_argon2(password: &[u8], salt: &[u8], length: usize) -> CryptoResult<Vec<u8>> {
         Argon2Kdf::derive_key(password, salt, length)
     }
+
+    // ML-KEM convenience functions
+
+    /// Generate ML-KEM-512 key pair (post-quantum key encapsulation)
+    #[inline]
+    pub fn generate_ml_kem_512_keypair() -> CryptoResult<MlKem512KeyPair> {
+        MlKem512::generate_keypair()
+    }
+
+    /// Encapsulate shared secret using ML-KEM-512
+    #[inline]
+    pub fn ml_kem_512_encapsulate(public_key: &[u8]) -> CryptoResult<MlKem512Encapsulation> {
+        MlKem512::encapsulate(public_key)
+    }
+
+    /// Decapsulate shared secret using ML-KEM-512
+    #[inline]
+    pub fn ml_kem_512_decapsulate(ciphertext: &[u8], private_key: &[u8]) -> CryptoResult<Vec<u8>> {
+        MlKem512::decapsulate(ciphertext, private_key)
+    }
+
+    /// Generate ML-KEM-768 key pair (post-quantum key encapsulation) - Recommended
+    #[inline]
+    pub fn generate_ml_kem_768_keypair() -> CryptoResult<MlKem768KeyPair> {
+        MlKem768::generate_keypair()
+    }
+
+    /// Encapsulate shared secret using ML-KEM-768
+    #[inline]
+    pub fn ml_kem_768_encapsulate(public_key: &[u8]) -> CryptoResult<MlKem768Encapsulation> {
+        MlKem768::encapsulate(public_key)
+    }
+
+    /// Decapsulate shared secret using ML-KEM-768
+    #[inline]
+    pub fn ml_kem_768_decapsulate(ciphertext: &[u8], private_key: &[u8]) -> CryptoResult<Vec<u8>> {
+        MlKem768::decapsulate(ciphertext, private_key)
+    }
+
+    /// Generate ML-KEM-1024 key pair (post-quantum key encapsulation)
+    #[inline]
+    pub fn generate_ml_kem_1024_keypair() -> CryptoResult<MlKem1024KeyPair> {
+        MlKem1024::generate_keypair()
+    }
+
+    /// Encapsulate shared secret using ML-KEM-1024
+    #[inline]
+    pub fn ml_kem_1024_encapsulate(public_key: &[u8]) -> CryptoResult<MlKem1024Encapsulation> {
+        MlKem1024::encapsulate(public_key)
+    }
+
+    /// Decapsulate shared secret using ML-KEM-1024
+    #[inline]
+    pub fn ml_kem_1024_decapsulate(ciphertext: &[u8], private_key: &[u8]) -> CryptoResult<Vec<u8>> {
+        MlKem1024::decapsulate(ciphertext, private_key)
+    }
+
+    // ML-DSA convenience functions
+
+    /// Generate ML-DSA-44 key pair (post-quantum digital signatures)
+    #[inline]
+    pub fn generate_ml_dsa_44_keypair() -> CryptoResult<MlDsa44KeyPair> {
+        MlDsa44::generate_keypair()
+    }
+
+    /// Sign data using ML-DSA-44
+    #[inline]
+    pub fn ml_dsa_44_sign(message: &[u8], private_key: &[u8]) -> CryptoResult<Vec<u8>> {
+        MlDsa44::sign(message, private_key)
+    }
+
+    /// Verify ML-DSA-44 signature
+    #[inline]
+    pub fn ml_dsa_44_verify(message: &[u8], signature: &[u8], public_key: &[u8]) -> CryptoResult<bool> {
+        MlDsa44::verify(message, signature, public_key)
+    }
+
+    /// Generate ML-DSA-65 key pair (post-quantum digital signatures) - Recommended
+    #[inline]
+    pub fn generate_ml_dsa_65_keypair() -> CryptoResult<MlDsa65KeyPair> {
+        MlDsa65::generate_keypair()
+    }
+
+    /// Sign data using ML-DSA-65
+    #[inline]
+    pub fn ml_dsa_65_sign(message: &[u8], private_key: &[u8]) -> CryptoResult<Vec<u8>> {
+        MlDsa65::sign(message, private_key)
+    }
+
+    /// Verify ML-DSA-65 signature
+    #[inline]
+    pub fn ml_dsa_65_verify(message: &[u8], signature: &[u8], public_key: &[u8]) -> CryptoResult<bool> {
+        MlDsa65::verify(message, signature, public_key)
+    }
+
+    /// Generate ML-DSA-87 key pair (post-quantum digital signatures)
+    #[inline]
+    pub fn generate_ml_dsa_87_keypair() -> CryptoResult<MlDsa87KeyPair> {
+        MlDsa87::generate_keypair()
+    }
+
+    /// Sign data using ML-DSA-87
+    #[inline]
+    pub fn ml_dsa_87_sign(message: &[u8], private_key: &[u8]) -> CryptoResult<Vec<u8>> {
+        MlDsa87::sign(message, private_key)
+    }
+
+    /// Verify ML-DSA-87 signature
+    #[inline]
+    pub fn ml_dsa_87_verify(message: &[u8], signature: &[u8], public_key: &[u8]) -> CryptoResult<bool> {
+        MlDsa87::verify(message, signature, public_key)
+    }
 }
 
 #[cfg(test)]
@@ -185,5 +314,58 @@ mod tests {
 
         let hash = crypto::hash_sha256(plaintext).unwrap();
         assert_eq!(hash.len(), 32);
+    }
+
+    #[test]
+    fn test_ml_kem_768_integration() {
+        let keypair = MlKem768::generate_keypair().unwrap();
+
+        let encapsulation = MlKem768::encapsulate(keypair.public_key_bytes()).unwrap();
+
+        let shared_secret = MlKem768::decapsulate(
+            &encapsulation.ciphertext,
+            keypair.private_key_bytes(),
+        ).unwrap();
+
+        assert_eq!(encapsulation.shared_secret, shared_secret);
+    }
+
+    #[test]
+    fn test_ml_dsa_65_integration() {
+        let keypair = MlDsa65::generate_keypair().unwrap();
+        let message = b"Integration test for ML-DSA-65";
+
+        let signature = MlDsa65::sign(message, keypair.private_key_bytes()).unwrap();
+
+        let is_valid = MlDsa65::verify(message, &signature, keypair.public_key_bytes()).unwrap();
+
+        assert!(is_valid);
+
+        // Test with wrong message
+        let wrong_message = b"Wrong message";
+        let is_valid = MlDsa65::verify(wrong_message, &signature, keypair.public_key_bytes()).unwrap();
+
+        assert!(!is_valid);
+    }
+
+    #[test]
+    fn test_post_quantum_convenience_functions() {
+        use crate::crypto;
+
+        // Test ML-KEM-768 convenience functions
+        let kem_keypair = crypto::generate_ml_kem_768_keypair().unwrap();
+        let encapsulation = crypto::ml_kem_768_encapsulate(kem_keypair.public_key_bytes()).unwrap();
+        let shared_secret = crypto::ml_kem_768_decapsulate(
+            &encapsulation.ciphertext,
+            kem_keypair.private_key_bytes(),
+        ).unwrap();
+        assert_eq!(encapsulation.shared_secret, shared_secret);
+
+        // Test ML-DSA-65 convenience functions
+        let dsa_keypair = crypto::generate_ml_dsa_65_keypair().unwrap();
+        let message = b"Convenience function test for ML-DSA-65";
+        let signature = crypto::ml_dsa_65_sign(message, dsa_keypair.private_key_bytes()).unwrap();
+        let is_valid = crypto::ml_dsa_65_verify(message, &signature, dsa_keypair.public_key_bytes()).unwrap();
+        assert!(is_valid);
     }
 }

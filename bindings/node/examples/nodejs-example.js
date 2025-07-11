@@ -1,4 +1,4 @@
-const { SymmetricCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator } = require('../index.js');
+const { SymmetricCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator, PostQuantumCrypto } = require('../index.js');
 
 console.log('🔐 LibSilver Node.js Examples\n');
 

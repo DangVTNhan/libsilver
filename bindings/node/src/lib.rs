@@ -359,3 +359,395 @@ impl From<EcdsaKeyPair> for EcdsaKeyPairJs {
         }
     }
 }
+
+/// ML-KEM-512 Key Pair for JavaScript
+#[napi(object)]
+pub struct MlKem512KeyPairJs {
+    pub public_key_bytes: Buffer,
+    pub private_key_bytes: Buffer,
+}
+
+impl From<MlKem512KeyPair> for MlKem512KeyPairJs {
+    fn from(keypair: MlKem512KeyPair) -> Self {
+        Self {
+            public_key_bytes: Buffer::from(keypair.public_key_bytes().to_vec()),
+            private_key_bytes: Buffer::from(keypair.private_key_bytes().to_vec()),
+        }
+    }
+}
+
+/// ML-KEM-768 Key Pair for JavaScript
+#[napi(object)]
+pub struct MlKem768KeyPairJs {
+    pub public_key_bytes: Buffer,
+    pub private_key_bytes: Buffer,
+}
+
+impl From<MlKem768KeyPair> for MlKem768KeyPairJs {
+    fn from(keypair: MlKem768KeyPair) -> Self {
+        Self {
+            public_key_bytes: Buffer::from(keypair.public_key_bytes().to_vec()),
+            private_key_bytes: Buffer::from(keypair.private_key_bytes().to_vec()),
+        }
+    }
+}
+
+/// ML-KEM-1024 Key Pair for JavaScript
+#[napi(object)]
+pub struct MlKem1024KeyPairJs {
+    pub public_key_bytes: Buffer,
+    pub private_key_bytes: Buffer,
+}
+
+impl From<MlKem1024KeyPair> for MlKem1024KeyPairJs {
+    fn from(keypair: MlKem1024KeyPair) -> Self {
+        Self {
+            public_key_bytes: Buffer::from(keypair.public_key_bytes().to_vec()),
+            private_key_bytes: Buffer::from(keypair.private_key_bytes().to_vec()),
+        }
+    }
+}
+
+/// ML-DSA-44 Key Pair for JavaScript
+#[napi(object)]
+pub struct MlDsa44KeyPairJs {
+    pub public_key_bytes: Buffer,
+    pub private_key_bytes: Buffer,
+}
+
+impl From<MlDsa44KeyPair> for MlDsa44KeyPairJs {
+    fn from(keypair: MlDsa44KeyPair) -> Self {
+        Self {
+            public_key_bytes: Buffer::from(keypair.public_key_bytes().to_vec()),
+            private_key_bytes: Buffer::from(keypair.private_key_bytes().to_vec()),
+        }
+    }
+}
+
+/// ML-DSA-65 Key Pair for JavaScript
+#[napi(object)]
+pub struct MlDsa65KeyPairJs {
+    pub public_key_bytes: Buffer,
+    pub private_key_bytes: Buffer,
+}
+
+impl From<MlDsa65KeyPair> for MlDsa65KeyPairJs {
+    fn from(keypair: MlDsa65KeyPair) -> Self {
+        Self {
+            public_key_bytes: Buffer::from(keypair.public_key_bytes().to_vec()),
+            private_key_bytes: Buffer::from(keypair.private_key_bytes().to_vec()),
+        }
+    }
+}
+
+/// ML-DSA-87 Key Pair for JavaScript
+#[napi(object)]
+pub struct MlDsa87KeyPairJs {
+    pub public_key_bytes: Buffer,
+    pub private_key_bytes: Buffer,
+}
+
+impl From<MlDsa87KeyPair> for MlDsa87KeyPairJs {
+    fn from(keypair: MlDsa87KeyPair) -> Self {
+        Self {
+            public_key_bytes: Buffer::from(keypair.public_key_bytes().to_vec()),
+            private_key_bytes: Buffer::from(keypair.private_key_bytes().to_vec()),
+        }
+    }
+}
+
+/// ML-KEM-512 Encapsulation result for JavaScript
+#[napi(object)]
+pub struct MlKem512EncapsulationJs {
+    pub ciphertext: Buffer,
+    pub shared_secret: Buffer,
+}
+
+impl From<MlKem512Encapsulation> for MlKem512EncapsulationJs {
+    fn from(encapsulation: MlKem512Encapsulation) -> Self {
+        Self {
+            ciphertext: Buffer::from(encapsulation.ciphertext.clone()),
+            shared_secret: Buffer::from(encapsulation.shared_secret.clone()),
+        }
+    }
+}
+
+/// ML-KEM-768 Encapsulation result for JavaScript
+#[napi(object)]
+pub struct MlKem768EncapsulationJs {
+    pub ciphertext: Buffer,
+    pub shared_secret: Buffer,
+}
+
+impl From<MlKem768Encapsulation> for MlKem768EncapsulationJs {
+    fn from(encapsulation: MlKem768Encapsulation) -> Self {
+        Self {
+            ciphertext: Buffer::from(encapsulation.ciphertext.clone()),
+            shared_secret: Buffer::from(encapsulation.shared_secret.clone()),
+        }
+    }
+}
+
+/// ML-KEM-1024 Encapsulation result for JavaScript
+#[napi(object)]
+pub struct MlKem1024EncapsulationJs {
+    pub ciphertext: Buffer,
+    pub shared_secret: Buffer,
+}
+
+impl From<MlKem1024Encapsulation> for MlKem1024EncapsulationJs {
+    fn from(encapsulation: MlKem1024Encapsulation) -> Self {
+        Self {
+            ciphertext: Buffer::from(encapsulation.ciphertext.clone()),
+            shared_secret: Buffer::from(encapsulation.shared_secret.clone()),
+        }
+    }
+}
+
+/// ML-KEM-512 Post-Quantum Cryptography Module
+#[napi]
+pub struct MlKem512Crypto;
+
+#[napi]
+impl MlKem512Crypto {
+    /// Generate ML-KEM-512 key pair
+    #[napi]
+    pub fn generate_keypair() -> napi::Result<MlKem512KeyPairJs> {
+        let keypair = to_napi_result!(MlKem512::generate_keypair())?;
+        Ok(MlKem512KeyPairJs::from(keypair))
+    }
+
+    /// Encapsulate shared secret using ML-KEM-512
+    #[napi]
+    pub fn encapsulate(public_key_bytes: Buffer) -> napi::Result<MlKem512EncapsulationJs> {
+        let encapsulation = to_napi_result!(MlKem512::encapsulate(&public_key_bytes))?;
+        Ok(MlKem512EncapsulationJs::from(encapsulation))
+    }
+
+    /// Decapsulate shared secret using ML-KEM-512
+    #[napi]
+    pub fn decapsulate(ciphertext: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
+        let shared_secret = to_napi_result!(MlKem512::decapsulate(&ciphertext, &private_key_bytes))?;
+        Ok(Buffer::from(shared_secret))
+    }
+
+    /// Get ML-KEM-512 size constants
+    #[napi]
+    pub fn get_sizes() -> napi::Result<MlKemSizesJs> {
+        Ok(MlKemSizesJs {
+            public_key_size: MlKem512::public_key_size() as u32,
+            private_key_size: MlKem512::private_key_size() as u32,
+            ciphertext_size: MlKem512::ciphertext_size() as u32,
+            shared_secret_size: MlKem512::shared_secret_size() as u32,
+        })
+    }
+}
+
+/// ML-KEM-768 Post-Quantum Cryptography Module
+#[napi]
+pub struct MlKem768Crypto;
+
+#[napi]
+impl MlKem768Crypto {
+    /// Generate ML-KEM-768 key pair
+    #[napi]
+    pub fn generate_keypair() -> napi::Result<MlKem768KeyPairJs> {
+        let keypair = to_napi_result!(MlKem768::generate_keypair())?;
+        Ok(MlKem768KeyPairJs::from(keypair))
+    }
+
+    /// Encapsulate shared secret using ML-KEM-768
+    #[napi]
+    pub fn encapsulate(public_key_bytes: Buffer) -> napi::Result<MlKem768EncapsulationJs> {
+        let encapsulation = to_napi_result!(MlKem768::encapsulate(&public_key_bytes))?;
+        Ok(MlKem768EncapsulationJs::from(encapsulation))
+    }
+
+    /// Decapsulate shared secret using ML-KEM-768
+    #[napi]
+    pub fn decapsulate(ciphertext: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
+        let shared_secret = to_napi_result!(MlKem768::decapsulate(&ciphertext, &private_key_bytes))?;
+        Ok(Buffer::from(shared_secret))
+    }
+
+    /// Get ML-KEM-768 size constants
+    #[napi]
+    pub fn get_sizes() -> napi::Result<MlKemSizesJs> {
+        Ok(MlKemSizesJs {
+            public_key_size: MlKem768::public_key_size() as u32,
+            private_key_size: MlKem768::private_key_size() as u32,
+            ciphertext_size: MlKem768::ciphertext_size() as u32,
+            shared_secret_size: MlKem768::shared_secret_size() as u32,
+        })
+    }
+}
+
+/// ML-KEM-1024 Post-Quantum Cryptography Module
+#[napi]
+pub struct MlKem1024Crypto;
+
+#[napi]
+impl MlKem1024Crypto {
+    /// Generate ML-KEM-1024 key pair
+    #[napi]
+    pub fn generate_keypair() -> napi::Result<MlKem1024KeyPairJs> {
+        let keypair = to_napi_result!(MlKem1024::generate_keypair())?;
+        Ok(MlKem1024KeyPairJs::from(keypair))
+    }
+
+    /// Encapsulate shared secret using ML-KEM-1024
+    #[napi]
+    pub fn encapsulate(public_key_bytes: Buffer) -> napi::Result<MlKem1024EncapsulationJs> {
+        let encapsulation = to_napi_result!(MlKem1024::encapsulate(&public_key_bytes))?;
+        Ok(MlKem1024EncapsulationJs::from(encapsulation))
+    }
+
+    /// Decapsulate shared secret using ML-KEM-1024
+    #[napi]
+    pub fn decapsulate(ciphertext: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
+        let shared_secret = to_napi_result!(MlKem1024::decapsulate(&ciphertext, &private_key_bytes))?;
+        Ok(Buffer::from(shared_secret))
+    }
+
+    /// Get ML-KEM-1024 size constants
+    #[napi]
+    pub fn get_sizes() -> napi::Result<MlKemSizesJs> {
+        Ok(MlKemSizesJs {
+            public_key_size: MlKem1024::public_key_size() as u32,
+            private_key_size: MlKem1024::private_key_size() as u32,
+            ciphertext_size: MlKem1024::ciphertext_size() as u32,
+            shared_secret_size: MlKem1024::shared_secret_size() as u32,
+        })
+    }
+}
+
+/// ML-DSA-44 Post-Quantum Digital Signature Module
+#[napi]
+pub struct MlDsa44Crypto;
+
+#[napi]
+impl MlDsa44Crypto {
+    /// Generate ML-DSA-44 key pair
+    #[napi]
+    pub fn generate_keypair() -> napi::Result<MlDsa44KeyPairJs> {
+        let keypair = to_napi_result!(MlDsa44::generate_keypair())?;
+        Ok(MlDsa44KeyPairJs::from(keypair))
+    }
+
+    /// Sign message using ML-DSA-44
+    #[napi]
+    pub fn sign(message: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
+        let signature = to_napi_result!(MlDsa44::sign(&message, &private_key_bytes))?;
+        Ok(Buffer::from(signature))
+    }
+
+    /// Verify ML-DSA-44 signature
+    #[napi]
+    pub fn verify(message: Buffer, signature: Buffer, public_key_bytes: Buffer) -> napi::Result<bool> {
+        let is_valid = to_napi_result!(MlDsa44::verify(&message, &signature, &public_key_bytes))?;
+        Ok(is_valid)
+    }
+
+    /// Get ML-DSA-44 size constants
+    #[napi]
+    pub fn get_sizes() -> napi::Result<MlDsaSizesJs> {
+        Ok(MlDsaSizesJs {
+            public_key_size: MlDsa44::public_key_size() as u32,
+            private_key_size: MlDsa44::private_key_size() as u32,
+            max_signature_size: MlDsa44::max_signature_size() as u32,
+        })
+    }
+}
+
+/// ML-DSA-65 Post-Quantum Digital Signature Module
+#[napi]
+pub struct MlDsa65Crypto;
+
+#[napi]
+impl MlDsa65Crypto {
+    /// Generate ML-DSA-65 key pair
+    #[napi]
+    pub fn generate_keypair() -> napi::Result<MlDsa65KeyPairJs> {
+        let keypair = to_napi_result!(MlDsa65::generate_keypair())?;
+        Ok(MlDsa65KeyPairJs::from(keypair))
+    }
+
+    /// Sign message using ML-DSA-65
+    #[napi]
+    pub fn sign(message: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
+        let signature = to_napi_result!(MlDsa65::sign(&message, &private_key_bytes))?;
+        Ok(Buffer::from(signature))
+    }
+
+    /// Verify ML-DSA-65 signature
+    #[napi]
+    pub fn verify(message: Buffer, signature: Buffer, public_key_bytes: Buffer) -> napi::Result<bool> {
+        let is_valid = to_napi_result!(MlDsa65::verify(&message, &signature, &public_key_bytes))?;
+        Ok(is_valid)
+    }
+
+    /// Get ML-DSA-65 size constants
+    #[napi]
+    pub fn get_sizes() -> napi::Result<MlDsaSizesJs> {
+        Ok(MlDsaSizesJs {
+            public_key_size: MlDsa65::public_key_size() as u32,
+            private_key_size: MlDsa65::private_key_size() as u32,
+            max_signature_size: MlDsa65::max_signature_size() as u32,
+        })
+    }
+}
+
+/// ML-DSA-87 Post-Quantum Digital Signature Module
+#[napi]
+pub struct MlDsa87Crypto;
+
+#[napi]
+impl MlDsa87Crypto {
+    /// Generate ML-DSA-87 key pair
+    #[napi]
+    pub fn generate_keypair() -> napi::Result<MlDsa87KeyPairJs> {
+        let keypair = to_napi_result!(MlDsa87::generate_keypair())?;
+        Ok(MlDsa87KeyPairJs::from(keypair))
+    }
+
+    /// Sign message using ML-DSA-87
+    #[napi]
+    pub fn sign(message: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
+        let signature = to_napi_result!(MlDsa87::sign(&message, &private_key_bytes))?;
+        Ok(Buffer::from(signature))
+    }
+
+    /// Verify ML-DSA-87 signature
+    #[napi]
+    pub fn verify(message: Buffer, signature: Buffer, public_key_bytes: Buffer) -> napi::Result<bool> {
+        let is_valid = to_napi_result!(MlDsa87::verify(&message, &signature, &public_key_bytes))?;
+        Ok(is_valid)
+    }
+
+    /// Get ML-DSA-87 size constants
+    #[napi]
+    pub fn get_sizes() -> napi::Result<MlDsaSizesJs> {
+        Ok(MlDsaSizesJs {
+            public_key_size: MlDsa87::public_key_size() as u32,
+            private_key_size: MlDsa87::private_key_size() as u32,
+            max_signature_size: MlDsa87::max_signature_size() as u32,
+        })
+    }
+}
+
+/// ML-KEM Size Constants for JavaScript
+#[napi(object)]
+pub struct MlKemSizesJs {
+    pub public_key_size: u32,
+    pub private_key_size: u32,
+    pub ciphertext_size: u32,
+    pub shared_secret_size: u32,
+}
+
+/// ML-DSA Size Constants for JavaScript
+#[napi(object)]
+pub struct MlDsaSizesJs {
+    pub public_key_size: u32,
+    pub private_key_size: u32,
+    pub max_signature_size: u32,
+}

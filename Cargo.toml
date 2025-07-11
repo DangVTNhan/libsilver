@@ -44,6 +44,8 @@ thiserror = "1.0"
 napi = { version = "2.0", optional = true }
 napi-derive = { version = "2.0", optional = true }
 uniffi = { version = "0.25", optional = true }
+libcrux-ml-kem = "0.0.3"
+fips204 = "0.4"
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }

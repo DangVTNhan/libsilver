@@ -1,6 +1,6 @@
 {
   "name": "libsilver-nodejs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Cross-platform cryptography library for Node.js - built with RustCrypto",
   "main": "index.js",
   "types": "index.d.ts",
@@ -69,7 +69,11 @@
     "build:windows": "export PATH=\"/opt/homebrew/opt/llvm/bin:$PATH\" && npx napi build --platform --release --target x86_64-pc-windows-msvc && npx napi build --platform --release --target aarch64-pc-windows-msvc",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "node test/test.js",
+    "test:post-quantum": "node test/post-quantum-test.js",
+    "test:all": "npm run test && npm run test:post-quantum",
     "example": "node examples/nodejs-example.js",
+    "example:post-quantum": "node examples/post-quantum-example.js",
+    "example:standalone": "node examples/standalone-variants-example.js",
     "clean": "rm -rf target/ *.node",
     "version": "napi version"
   },
@@ -83,9 +87,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "optionalDependencies": {
-    "libsilver-nodejs-darwin-arm64": "0.1.1",
-    "libsilver-nodejs-darwin-x64": "0.1.1",
-    "libsilver-nodejs-win32-x64-msvc": "0.1.1",
-    "libsilver-nodejs-win32-arm64-msvc": "0.1.1"
+    "libsilver-nodejs-darwin-arm64": "0.1.2",
+    "libsilver-nodejs-darwin-x64": "0.1.2",
+    "libsilver-nodejs-win32-x64-msvc": "0.1.2",
+    "libsilver-nodejs-win32-arm64-msvc": "0.1.2"
   }
 }

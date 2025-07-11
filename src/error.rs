@@ -36,6 +36,18 @@ pub const INVALID_ED25519_PUBLIC_KEY: &str = "Invalid Ed25519 public key";
 pub const SALT_ENCODING_FAILED: &str = "Salt encoding failed";
 pub const ARGON2_HASHING_FAILED: &str = "Argon2 hashing failed";
 pub const INVALID_HASH_FORMAT: &str = "Invalid hash format";
+pub const ML_KEM_KEY_GENERATION_FAILED: &str = "ML-KEM key generation failed";
+pub const ML_KEM_ENCAPSULATION_FAILED: &str = "ML-KEM encapsulation failed";
+pub const ML_KEM_DECAPSULATION_FAILED: &str = "ML-KEM decapsulation failed";
+pub const ML_DSA_KEY_GENERATION_FAILED: &str = "ML-DSA key generation failed";
+pub const ML_DSA_SIGNING_FAILED: &str = "ML-DSA signing failed";
+pub const ML_DSA_VERIFICATION_FAILED: &str = "ML-DSA verification failed";
+pub const INVALID_ML_KEM_PRIVATE_KEY: &str = "Invalid ML-KEM private key";
+pub const INVALID_ML_KEM_PUBLIC_KEY: &str = "Invalid ML-KEM public key";
+pub const INVALID_ML_KEM_CIPHERTEXT: &str = "Invalid ML-KEM ciphertext";
+pub const INVALID_ML_DSA_PRIVATE_KEY: &str = "Invalid ML-DSA private key";
+pub const INVALID_ML_DSA_PUBLIC_KEY: &str = "Invalid ML-DSA public key";
+pub const INVALID_ML_DSA_SIGNATURE: &str = "Invalid ML-DSA signature";
 
 /// Unified error type for all cryptographic operations
 #[derive(Error, Debug, Clone, PartialEq)]

@@ -10,6 +10,7 @@ LibSilver is a comprehensive, cross-platform cryptography library built with Rus
 - **Symmetric Encryption**: AES-256-GCM, ChaCha20-Poly1305
 - **Asymmetric Encryption**: RSA-OAEP (2048+ bit keys)
 - **Digital Signatures**: ECDSA P-256, Ed25519
+- **Post-Quantum Cryptography**: ML-KEM-768 (Key Encapsulation), ML-DSA-65 (Digital Signatures)
 - **Cryptographic Hashing**: SHA-256, SHA-512, BLAKE3, HMAC
 - **Key Derivation Functions**: Argon2, HKDF, PBKDF2
 - **Secure Random Generation**: OS-backed cryptographically secure random number generation
@@ -106,6 +107,52 @@ use libsilver::prelude::*;
 let keypair = EcdsaCrypto::generate_keypair()?;
 let signature = EcdsaCrypto::sign(message, keypair.signing_key())?;
 let is_valid = EcdsaCrypto::verify(message, &signature, keypair.verifying_key())?;
+```
+
+### Post-Quantum Cryptography
+
+#### ML-KEM (Key Encapsulation Mechanism)
+```rust
+use libsilver::prelude::*;
+
+// Generate ML-KEM-768 key pair
+let keypair = MlKemCrypto::generate_keypair()?;
+
+// Encapsulate a shared secret
+let encapsulation = MlKemCrypto::encapsulate(
+    keypair.public_key_bytes(),
+    keypair.level(),
+)?;
+
+// Decapsulate the shared secret
+let shared_secret = MlKemCrypto::decapsulate(
+    &encapsulation.ciphertext,
+    keypair.private_key_bytes(),
+    keypair.level(),
+)?;
+```
+
+#### ML-DSA (Digital Signature Algorithm)
+```rust
+use libsilver::prelude::*;
+
+// Generate ML-DSA-65 key pair
+let keypair = MlDsaCrypto::generate_keypair()?;
+
+// Sign a message
+let signature = MlDsaCrypto::sign(
+    message,
+    keypair.private_key_bytes(),
+    keypair.level(),
+)?;
+
+// Verify the signature
+let is_valid = MlDsaCrypto::verify(
+    message,
+    &signature,
+    keypair.public_key_bytes(),
+    keypair.level(),
+)?;
 ```
 
 ### Cryptographic Hashing

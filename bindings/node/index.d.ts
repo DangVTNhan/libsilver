@@ -18,6 +18,64 @@ export interface EcdsaKeyPairJs {
   signingKeyBytes: Buffer
   verifyingKeyBytes: Buffer
 }
+/** ML-KEM-512 Key Pair for JavaScript */
+export interface MlKem512KeyPairJs {
+  publicKeyBytes: Buffer
+  privateKeyBytes: Buffer
+}
+/** ML-KEM-768 Key Pair for JavaScript */
+export interface MlKem768KeyPairJs {
+  publicKeyBytes: Buffer
+  privateKeyBytes: Buffer
+}
+/** ML-KEM-1024 Key Pair for JavaScript */
+export interface MlKem1024KeyPairJs {
+  publicKeyBytes: Buffer
+  privateKeyBytes: Buffer
+}
+/** ML-DSA-44 Key Pair for JavaScript */
+export interface MlDsa44KeyPairJs {
+  publicKeyBytes: Buffer
+  privateKeyBytes: Buffer
+}
+/** ML-DSA-65 Key Pair for JavaScript */
+export interface MlDsa65KeyPairJs {
+  publicKeyBytes: Buffer
+  privateKeyBytes: Buffer
+}
+/** ML-DSA-87 Key Pair for JavaScript */
+export interface MlDsa87KeyPairJs {
+  publicKeyBytes: Buffer
+  privateKeyBytes: Buffer
+}
+/** ML-KEM-512 Encapsulation result for JavaScript */
+export interface MlKem512EncapsulationJs {
+  ciphertext: Buffer
+  sharedSecret: Buffer
+}
+/** ML-KEM-768 Encapsulation result for JavaScript */
+export interface MlKem768EncapsulationJs {
+  ciphertext: Buffer
+  sharedSecret: Buffer
+}
+/** ML-KEM-1024 Encapsulation result for JavaScript */
+export interface MlKem1024EncapsulationJs {
+  ciphertext: Buffer
+  sharedSecret: Buffer
+}
+/** ML-KEM Size Constants for JavaScript */
+export interface MlKemSizesJs {
+  publicKeySize: number
+  privateKeySize: number
+  ciphertextSize: number
+  sharedSecretSize: number
+}
+/** ML-DSA Size Constants for JavaScript */
+export interface MlDsaSizesJs {
+  publicKeySize: number
+  privateKeySize: number
+  maxSignatureSize: number
+}
 /** Symmetric Encryption Module */
 export declare class SymmetricCrypto {
   /** Generate AES-256 key */
@@ -104,4 +162,70 @@ export declare class RandomGenerator {
   static generateNonce(length: number): Buffer
   /** Generate salt */
   static generateSalt(): Buffer
+}
+/** ML-KEM-512 Post-Quantum Cryptography Module */
+export declare class MlKem512Crypto {
+  /** Generate ML-KEM-512 key pair */
+  static generateKeypair(): MlKem512KeyPairJs
+  /** Encapsulate shared secret using ML-KEM-512 */
+  static encapsulate(publicKeyBytes: Buffer): MlKem512EncapsulationJs
+  /** Decapsulate shared secret using ML-KEM-512 */
+  static decapsulate(ciphertext: Buffer, privateKeyBytes: Buffer): Buffer
+  /** Get ML-KEM-512 size constants */
+  static getSizes(): MlKemSizesJs
+}
+/** ML-KEM-768 Post-Quantum Cryptography Module */
+export declare class MlKem768Crypto {
+  /** Generate ML-KEM-768 key pair */
+  static generateKeypair(): MlKem768KeyPairJs
+  /** Encapsulate shared secret using ML-KEM-768 */
+  static encapsulate(publicKeyBytes: Buffer): MlKem768EncapsulationJs
+  /** Decapsulate shared secret using ML-KEM-768 */
+  static decapsulate(ciphertext: Buffer, privateKeyBytes: Buffer): Buffer
+  /** Get ML-KEM-768 size constants */
+  static getSizes(): MlKemSizesJs
+}
+/** ML-KEM-1024 Post-Quantum Cryptography Module */
+export declare class MlKem1024Crypto {
+  /** Generate ML-KEM-1024 key pair */
+  static generateKeypair(): MlKem1024KeyPairJs
+  /** Encapsulate shared secret using ML-KEM-1024 */
+  static encapsulate(publicKeyBytes: Buffer): MlKem1024EncapsulationJs
+  /** Decapsulate shared secret using ML-KEM-1024 */
+  static decapsulate(ciphertext: Buffer, privateKeyBytes: Buffer): Buffer
+  /** Get ML-KEM-1024 size constants */
+  static getSizes(): MlKemSizesJs
+}
+/** ML-DSA-44 Post-Quantum Digital Signature Module */
+export declare class MlDsa44Crypto {
+  /** Generate ML-DSA-44 key pair */
+  static generateKeypair(): MlDsa44KeyPairJs
+  /** Sign message using ML-DSA-44 */
+  static sign(message: Buffer, privateKeyBytes: Buffer): Buffer
+  /** Verify ML-DSA-44 signature */
+  static verify(message: Buffer, signature: Buffer, publicKeyBytes: Buffer): boolean
+  /** Get ML-DSA-44 size constants */
+  static getSizes(): MlDsaSizesJs
+}
+/** ML-DSA-65 Post-Quantum Digital Signature Module */
+export declare class MlDsa65Crypto {
+  /** Generate ML-DSA-65 key pair */
+  static generateKeypair(): MlDsa65KeyPairJs
+  /** Sign message using ML-DSA-65 */
+  static sign(message: Buffer, privateKeyBytes: Buffer): Buffer
+  /** Verify ML-DSA-65 signature */
+  static verify(message: Buffer, signature: Buffer, publicKeyBytes: Buffer): boolean
+  /** Get ML-DSA-65 size constants */
+  static getSizes(): MlDsaSizesJs
+}
+/** ML-DSA-87 Post-Quantum Digital Signature Module */
+export declare class MlDsa87Crypto {
+  /** Generate ML-DSA-87 key pair */
+  static generateKeypair(): MlDsa87KeyPairJs
+  /** Sign message using ML-DSA-87 */
+  static sign(message: Buffer, privateKeyBytes: Buffer): Buffer
+  /** Verify ML-DSA-87 signature */
+  static verify(message: Buffer, signature: Buffer, publicKeyBytes: Buffer): boolean
+  /** Get ML-DSA-87 size constants */
+  static getSizes(): MlDsaSizesJs
 }

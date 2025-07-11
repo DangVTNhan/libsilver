@@ -310,10 +310,16 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { SymmetricCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator } = nativeBinding
+const { SymmetricCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator, MlKem512Crypto, MlKem768Crypto, MlKem1024Crypto, MlDsa44Crypto, MlDsa65Crypto, MlDsa87Crypto } = nativeBinding
 
 module.exports.SymmetricCrypto = SymmetricCrypto
 module.exports.AsymmetricCrypto = AsymmetricCrypto
 module.exports.HashFunctions = HashFunctions
 module.exports.KeyDerivation = KeyDerivation
 module.exports.RandomGenerator = RandomGenerator
+module.exports.MlKem512Crypto = MlKem512Crypto
+module.exports.MlKem768Crypto = MlKem768Crypto
+module.exports.MlKem1024Crypto = MlKem1024Crypto
+module.exports.MlDsa44Crypto = MlDsa44Crypto
+module.exports.MlDsa65Crypto = MlDsa65Crypto
+module.exports.MlDsa87Crypto = MlDsa87Crypto
