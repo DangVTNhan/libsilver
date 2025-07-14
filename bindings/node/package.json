@@ -1,6 +1,6 @@
 {
   "name": "libsilver-nodejs",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Cross-platform cryptography library for Node.js with post-quantum algorithms - built with RustCrypto",
   "main": "index.js",
   "types": "index.d.ts",
@@ -98,9 +98,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "optionalDependencies": {
-    "libsilver-nodejs-darwin-arm64": "0.1.3",
-    "libsilver-nodejs-darwin-x64": "0.1.3",
-    "libsilver-nodejs-win32-x64-msvc": "0.1.3",
-    "libsilver-nodejs-win32-arm64-msvc": "0.1.3"
+    "libsilver-nodejs-darwin-arm64": "0.1.4",
+    "libsilver-nodejs-darwin-x64": "0.1.4",
+    "libsilver-nodejs-win32-x64-msvc": "0.1.4",
+    "libsilver-nodejs-win32-arm64-msvc": "0.1.4"
   }
 }
