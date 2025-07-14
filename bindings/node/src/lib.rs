@@ -1,6 +1,7 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 use libsilver::core::*;
+use libsilver::core::symmetric::RustCryptoAesGcm;
 use libsilver::error::CryptoError;
 
 /// Convert CryptoError to napi::Error
@@ -15,31 +16,52 @@ macro_rules! to_napi_result {
     };
 }
 
-/// Symmetric Encryption Module
+/// Symmetric Encryption Module (Default: AWS-LC-RS AES-256-GCM)
 #[napi]
 pub struct SymmetricCrypto;
 
 #[napi]
 impl SymmetricCrypto {
-    /// Generate AES-256 key
+    /// Generate AES-256 key (uses AWS-LC-RS by default)
     #[napi]
     pub fn generate_aes_key() -> napi::Result<Buffer> {
         let key = to_napi_result!(AesGcm::generate_key())?;
         Ok(Buffer::from(key))
     }
 
-    /// Encrypt data using AES-256-GCM
+    /// Encrypt data using AES-256-GCM (uses AWS-LC-RS by default)
     #[napi]
     pub fn encrypt_aes(plaintext: Buffer, key: Buffer) -> napi::Result<Buffer> {
         let ciphertext = to_napi_result!(AesGcm::encrypt(&plaintext, &key))?;
         Ok(Buffer::from(ciphertext))
     }
 
-    /// Decrypt data using AES-256-GCM
+    /// Decrypt data using AES-256-GCM (uses AWS-LC-RS by default)
     #[napi]
     pub fn decrypt_aes(ciphertext: Buffer, key: Buffer) -> napi::Result<Buffer> {
         let plaintext = to_napi_result!(AesGcm::decrypt(&ciphertext, &key))?;
         Ok(Buffer::from(plaintext))
+    }
+
+    /// Encrypt data with Additional Authenticated Data (AAD) using AES-256-GCM (uses AWS-LC-RS by default)
+    #[napi]
+    pub fn encrypt_aes_with_aad(plaintext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(AesGcm::encrypt_with_aad(&plaintext, &key, &aad))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
+    /// Decrypt data with Additional Authenticated Data (AAD) using AES-256-GCM (uses AWS-LC-RS by default)
+    #[napi]
+    pub fn decrypt_aes_with_aad(ciphertext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+        let plaintext = to_napi_result!(AesGcm::decrypt_with_aad(&ciphertext, &key, &aad))?;
+        Ok(Buffer::from(plaintext))
+    }
+
+    /// Encrypt data with provided nonce using AES-256-GCM (uses AWS-LC-RS by default, for testing purposes)
+    #[napi]
+    pub fn encrypt_aes_with_nonce(plaintext: Buffer, key: Buffer, nonce: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(AesGcm::encrypt_with_nonce(&plaintext, &key, &nonce))?;
+        Ok(Buffer::from(ciphertext))
     }
 
     /// Generate ChaCha20-Poly1305 key
@@ -61,6 +83,104 @@ impl SymmetricCrypto {
     pub fn decrypt_chacha20(ciphertext: Buffer, key: Buffer) -> napi::Result<Buffer> {
         let plaintext = to_napi_result!(ChaCha20Poly1305Cipher::decrypt(&ciphertext, &key))?;
         Ok(Buffer::from(plaintext))
+    }
+}
+
+/// AWS-LC-RS AES Symmetric Encryption Module
+#[napi]
+pub struct AwsLcAesCrypto;
+
+#[napi]
+impl AwsLcAesCrypto {
+    /// Generate AES-256 key using AWS-LC-RS
+    #[napi]
+    pub fn generate_key() -> napi::Result<Buffer> {
+        let key = to_napi_result!(AwsLcAesGcm::generate_key())?;
+        Ok(Buffer::from(key))
+    }
+
+    /// Encrypt data using AWS-LC-RS AES-256-GCM
+    #[napi]
+    pub fn encrypt(plaintext: Buffer, key: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(AwsLcAesGcm::encrypt(&plaintext, &key))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
+    /// Decrypt data using AWS-LC-RS AES-256-GCM
+    #[napi]
+    pub fn decrypt(ciphertext: Buffer, key: Buffer) -> napi::Result<Buffer> {
+        let plaintext = to_napi_result!(AwsLcAesGcm::decrypt(&ciphertext, &key))?;
+        Ok(Buffer::from(plaintext))
+    }
+
+    /// Encrypt data with Additional Authenticated Data (AAD) using AWS-LC-RS AES-256-GCM
+    #[napi]
+    pub fn encrypt_with_aad(plaintext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(AwsLcAesGcm::encrypt_with_aad(&plaintext, &key, &aad))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
+    /// Decrypt data with Additional Authenticated Data (AAD) using AWS-LC-RS AES-256-GCM
+    #[napi]
+    pub fn decrypt_with_aad(ciphertext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+        let plaintext = to_napi_result!(AwsLcAesGcm::decrypt_with_aad(&ciphertext, &key, &aad))?;
+        Ok(Buffer::from(plaintext))
+    }
+
+    /// Encrypt data with provided nonce using AWS-LC-RS AES-256-GCM (for testing purposes)
+    #[napi]
+    pub fn encrypt_with_nonce(plaintext: Buffer, key: Buffer, nonce: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(AwsLcAesGcm::encrypt_with_nonce(&plaintext, &key, &nonce))?;
+        Ok(Buffer::from(ciphertext))
+    }
+}
+
+/// RustCrypto AES Symmetric Encryption Module
+#[napi]
+pub struct RustCryptoAesCrypto;
+
+#[napi]
+impl RustCryptoAesCrypto {
+    /// Generate AES-256 key using RustCrypto
+    #[napi]
+    pub fn generate_key() -> napi::Result<Buffer> {
+        let key = to_napi_result!(RustCryptoAesGcm::generate_key())?;
+        Ok(Buffer::from(key))
+    }
+
+    /// Encrypt data using RustCrypto AES-256-GCM
+    #[napi]
+    pub fn encrypt(plaintext: Buffer, key: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt(&plaintext, &key))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
+    /// Decrypt data using RustCrypto AES-256-GCM
+    #[napi]
+    pub fn decrypt(ciphertext: Buffer, key: Buffer) -> napi::Result<Buffer> {
+        let plaintext = to_napi_result!(RustCryptoAesGcm::decrypt(&ciphertext, &key))?;
+        Ok(Buffer::from(plaintext))
+    }
+
+    /// Encrypt data with Additional Authenticated Data (AAD) using RustCrypto AES-256-GCM
+    #[napi]
+    pub fn encrypt_with_aad(plaintext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt_with_aad(&plaintext, &key, &aad))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
+    /// Decrypt data with Additional Authenticated Data (AAD) using RustCrypto AES-256-GCM
+    #[napi]
+    pub fn decrypt_with_aad(ciphertext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+        let plaintext = to_napi_result!(RustCryptoAesGcm::decrypt_with_aad(&ciphertext, &key, &aad))?;
+        Ok(Buffer::from(plaintext))
+    }
+
+    /// Encrypt data with provided nonce using RustCrypto AES-256-GCM (for testing purposes)
+    #[napi]
+    pub fn encrypt_with_nonce(plaintext: Buffer, key: Buffer, nonce: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt_with_nonce(&plaintext, &key, &nonce))?;
+        Ok(Buffer::from(ciphertext))
     }
 }
 

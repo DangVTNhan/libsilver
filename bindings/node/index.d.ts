@@ -76,20 +76,56 @@ export interface MlDsaSizesJs {
   privateKeySize: number
   maxSignatureSize: number
 }
-/** Symmetric Encryption Module */
+/** Symmetric Encryption Module (Default: AWS-LC-RS AES-256-GCM) */
 export declare class SymmetricCrypto {
-  /** Generate AES-256 key */
+  /** Generate AES-256 key (uses AWS-LC-RS by default) */
   static generateAesKey(): Buffer
-  /** Encrypt data using AES-256-GCM */
+  /** Encrypt data using AES-256-GCM (uses AWS-LC-RS by default) */
   static encryptAes(plaintext: Buffer, key: Buffer): Buffer
-  /** Decrypt data using AES-256-GCM */
+  /** Decrypt data using AES-256-GCM (uses AWS-LC-RS by default) */
   static decryptAes(ciphertext: Buffer, key: Buffer): Buffer
+  /** Encrypt data with Additional Authenticated Data (AAD) using AES-256-GCM (uses AWS-LC-RS by default) */
+  static encryptAesWithAad(plaintext: Buffer, key: Buffer, aad: Buffer): Buffer
+  /** Decrypt data with Additional Authenticated Data (AAD) using AES-256-GCM (uses AWS-LC-RS by default) */
+  static decryptAesWithAad(ciphertext: Buffer, key: Buffer, aad: Buffer): Buffer
+  /** Encrypt data with provided nonce using AES-256-GCM (uses AWS-LC-RS by default, for testing purposes) */
+  static encryptAesWithNonce(plaintext: Buffer, key: Buffer, nonce: Buffer): Buffer
   /** Generate ChaCha20-Poly1305 key */
   static generateChacha20Key(): Buffer
   /** Encrypt data using ChaCha20-Poly1305 */
   static encryptChacha20(plaintext: Buffer, key: Buffer): Buffer
   /** Decrypt data using ChaCha20-Poly1305 */
   static decryptChacha20(ciphertext: Buffer, key: Buffer): Buffer
+}
+/** AWS-LC-RS AES Symmetric Encryption Module */
+export declare class AwsLcAesCrypto {
+  /** Generate AES-256 key using AWS-LC-RS */
+  static generateKey(): Buffer
+  /** Encrypt data using AWS-LC-RS AES-256-GCM */
+  static encrypt(plaintext: Buffer, key: Buffer): Buffer
+  /** Decrypt data using AWS-LC-RS AES-256-GCM */
+  static decrypt(ciphertext: Buffer, key: Buffer): Buffer
+  /** Encrypt data with Additional Authenticated Data (AAD) using AWS-LC-RS AES-256-GCM */
+  static encryptWithAad(plaintext: Buffer, key: Buffer, aad: Buffer): Buffer
+  /** Decrypt data with Additional Authenticated Data (AAD) using AWS-LC-RS AES-256-GCM */
+  static decryptWithAad(ciphertext: Buffer, key: Buffer, aad: Buffer): Buffer
+  /** Encrypt data with provided nonce using AWS-LC-RS AES-256-GCM (for testing purposes) */
+  static encryptWithNonce(plaintext: Buffer, key: Buffer, nonce: Buffer): Buffer
+}
+/** RustCrypto AES Symmetric Encryption Module */
+export declare class RustCryptoAesCrypto {
+  /** Generate AES-256 key using RustCrypto */
+  static generateKey(): Buffer
+  /** Encrypt data using RustCrypto AES-256-GCM */
+  static encrypt(plaintext: Buffer, key: Buffer): Buffer
+  /** Decrypt data using RustCrypto AES-256-GCM */
+  static decrypt(ciphertext: Buffer, key: Buffer): Buffer
+  /** Encrypt data with Additional Authenticated Data (AAD) using RustCrypto AES-256-GCM */
+  static encryptWithAad(plaintext: Buffer, key: Buffer, aad: Buffer): Buffer
+  /** Decrypt data with Additional Authenticated Data (AAD) using RustCrypto AES-256-GCM */
+  static decryptWithAad(ciphertext: Buffer, key: Buffer, aad: Buffer): Buffer
+  /** Encrypt data with provided nonce using RustCrypto AES-256-GCM (for testing purposes) */
+  static encryptWithNonce(plaintext: Buffer, key: Buffer, nonce: Buffer): Buffer
 }
 /** Asymmetric Encryption Module */
 export declare class AsymmetricCrypto {

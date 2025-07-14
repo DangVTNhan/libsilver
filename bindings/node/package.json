@@ -83,6 +83,7 @@
     "test:all": "node test/run-all-tests.js",
     "test:comprehensive": "node test/run-all-tests.js --all",
     "example": "node examples/nodejs-example.js",
+    "example:default-aes": "node examples/default-aes-example.js",
     "example:post-quantum": "node examples/post-quantum-example.js",
     "example:standalone": "node examples/standalone-variants-example.js",
     "clean": "rm -rf target/ *.node",

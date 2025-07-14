@@ -103,18 +103,29 @@ npm run clean
 
 If you encounter linking errors when building for Windows:
 
-1. Ensure LLVM is installed and in PATH:
+1. **Install NASM (Required for AWS-LC-RS):**
+   ```bash
+   brew install nasm
+   ```
+
+   NASM is required for building `aws-lc-rs` (AWS libcrypto) for Windows targets. Without it, you'll see errors like:
+   ```
+   NASM command not found or failed to execute.
+   Missing dependency: nasm
+   ```
+
+2. Ensure LLVM is installed and in PATH:
    ```bash
    brew install llvm
    export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
    ```
 
-2. Verify cargo-xwin is installed:
+3. Verify cargo-xwin is installed:
    ```bash
    cargo install cargo-xwin
    ```
 
-3. Check that the Windows target is installed:
+4. Check that the Windows target is installed:
    ```bash
    rustup target list --installed | grep windows
    ```

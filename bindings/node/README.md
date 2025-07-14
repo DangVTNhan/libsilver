@@ -5,7 +5,7 @@ High-performance cryptography library for Node.js, built with Rust and RustCrypt
 ## 🚀 Features
 
 - **Post-Quantum Cryptography**: ML-KEM (Key Encapsulation) and ML-DSA (Digital Signatures) - NIST standardized algorithms
-- **Symmetric Encryption**: AES-256-GCM, ChaCha20-Poly1305
+- **Symmetric Encryption**: AES-256-GCM (RustCrypto + AWS-LC-RS), ChaCha20-Poly1305
 - **Asymmetric Encryption**: RSA-OAEP (2048+ bit keys)
 - **Digital Signatures**: ECDSA P-256, Ed25519, ML-DSA (Post-Quantum)
 - **Key Encapsulation**: ML-KEM (Post-Quantum Key Exchange)
@@ -26,7 +26,7 @@ npm install libsilver-nodejs
 
 ```javascript
 const {
-  SymmetricCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator,
+  SymmetricCrypto, AwsLcAesCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator,
   MlKem768Crypto, MlDsa65Crypto  // Post-Quantum Cryptography
 } = require('libsilver-nodejs');
 
@@ -190,11 +190,54 @@ const decryptedMessage = SymmetricCrypto.decryptAes(encryptedMessage, aliceShare
 
 ### Symmetric Encryption
 
-#### AES-256-GCM
+#### AES-256-GCM (Default - AWS-LC-RS)
 ```javascript
+const { SymmetricCrypto } = require('libsilver-nodejs');
+
+// Basic encryption/decryption (uses AWS-LC-RS by default)
 const key = SymmetricCrypto.generateAesKey();
+const plaintext = Buffer.from('Hello, World!', 'utf8');
 const ciphertext = SymmetricCrypto.encryptAes(plaintext, key);
 const decrypted = SymmetricCrypto.decryptAes(ciphertext, key);
+
+// With Additional Authenticated Data (AAD)
+const aad = Buffer.from('user_id:12345,session:abc123', 'utf8');
+const ciphertextWithAad = SymmetricCrypto.encryptAesWithAad(plaintext, key, aad);
+const decryptedWithAad = SymmetricCrypto.decryptAesWithAad(ciphertextWithAad, key, aad);
+
+// With fixed nonce (for testing only)
+const nonce = Buffer.alloc(12, 0x42);
+const deterministicCiphertext = SymmetricCrypto.encryptAesWithNonce(plaintext, key, nonce);
+```
+
+**Default Benefits (AWS-LC-RS):**
+- 🚀 **5-20x faster** than RustCrypto AES-GCM
+- 🔒 **FIPS 140-2 Level 1** validated cryptography
+- ⚡ **Hardware acceleration** (AES-NI support)
+- 🏷️ **AAD support** for additional authentication
+
+#### AES-256-GCM (AWS-LC-RS Explicit)
+```javascript
+const { AwsLcAesCrypto } = require('libsilver-nodejs');
+
+// Same as SymmetricCrypto but explicitly using AWS-LC-RS
+const key = AwsLcAesCrypto.generateKey();
+const ciphertext = AwsLcAesCrypto.encrypt(plaintext, key);
+const decrypted = AwsLcAesCrypto.decrypt(ciphertext, key);
+```
+
+#### AES-256-GCM (RustCrypto Alternative)
+```javascript
+const { RustCryptoAesCrypto } = require('libsilver-nodejs');
+
+// For users who specifically want RustCrypto implementation
+const key = RustCryptoAesCrypto.generateKey();
+const ciphertext = RustCryptoAesCrypto.encrypt(plaintext, key);
+const decrypted = RustCryptoAesCrypto.decrypt(ciphertext, key);
+
+// RustCrypto also supports AAD
+const ciphertextWithAad = RustCryptoAesCrypto.encryptWithAad(plaintext, key, aad);
+const decryptedWithAad = RustCryptoAesCrypto.decryptWithAad(ciphertextWithAad, key, aad);
 ```
 
 #### ChaCha20-Poly1305
@@ -296,6 +339,7 @@ npm test
 # Run examples
 npm run example                    # Basic cryptography examples
 npm run example:post-quantum       # Post-quantum cryptography examples
+node examples/aws-lc-aes-example.js  # AWS-LC-RS AES performance demo
 ```
 
 ## 🧪 Testing

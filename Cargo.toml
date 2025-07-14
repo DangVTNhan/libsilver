@@ -23,6 +23,7 @@ crate-type = ["cdylib", "rlib"]
 # Core crypto dependencies
 aes = "0.8"
 aes-gcm = "0.10"
+aws-lc-rs = "1.8"
 chacha20poly1305 = "0.10"
 rsa = { version = "0.9", features = ["sha2"] }
 p256 = "0.13"
@@ -52,6 +53,10 @@ criterion = { version = "0.5", features = ["html_reports"] }
 
 [[bench]]
 name = "crypto_bench"
+harness = false
+
+[[bench]]
+name = "aes_comparison_bench"
 harness = false
 
 # Performance optimizations

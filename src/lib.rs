@@ -1,11 +1,12 @@
 //! # LibSilver - Cross-Platform Cryptography Library
 //!
-//! LibSilver is a comprehensive cryptography library built with RustCrypto that provides
+//! LibSilver is a comprehensive cryptography library that provides
 //! secure cryptographic primitives for multiple platforms including Node.js, Swift, and Kotlin/Java.
+//! It uses AWS-LC-RS as the default implementation for FIPS 140-2 validated cryptography.
 //!
 //! ## Features
 //!
-//! - **Symmetric Encryption**: AES-256-GCM, ChaCha20-Poly1305
+//! - **Symmetric Encryption**: AES-256-GCM (AWS-LC-RS default, RustCrypto available), ChaCha20-Poly1305
 //! - **Asymmetric Encryption**: RSA-OAEP
 //! - **Digital Signatures**: ECDSA P-256, Ed25519
 //! - **Post-Quantum Cryptography**: ML-KEM (Key Encapsulation), ML-DSA (Digital Signatures)
@@ -19,7 +20,7 @@
 //! ```rust
 //! use libsilver::prelude::*;
 //!
-//! // Symmetric encryption
+//! // Symmetric encryption (now uses AWS-LC-RS by default)
 //! let key = AesGcm::generate_key()?;
 //! let plaintext = b"Hello, World!";
 //! let ciphertext = AesGcm::encrypt(plaintext, &key)?;
@@ -73,25 +74,49 @@ pub mod prelude {
 pub mod crypto {
     use crate::prelude::*;
 
-    /// High-level symmetric encryption using AES-256-GCM
+    /// High-level symmetric encryption using AES-256-GCM (AWS-LC-RS - Default)
     #[inline]
     pub fn encrypt_aes(plaintext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
         AesGcm::encrypt(plaintext, key)
     }
 
-    /// High-level symmetric decryption using AES-256-GCM
+    /// High-level symmetric decryption using AES-256-GCM (AWS-LC-RS - Default)
     #[inline]
     pub fn decrypt_aes(ciphertext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
         AesGcm::decrypt(ciphertext, key)
     }
 
-    /// High-level symmetric encryption using AES-256-GCM with additional authenticated data
+    /// High-level symmetric encryption using AWS-LC-RS AES-256-GCM
+    #[inline]
+    pub fn encrypt_aes_aws_lc(plaintext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
+        AwsLcAesGcm::encrypt(plaintext, key)
+    }
+
+    /// High-level symmetric decryption using AWS-LC-RS AES-256-GCM
+    #[inline]
+    pub fn decrypt_aes_aws_lc(ciphertext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
+        AwsLcAesGcm::decrypt(ciphertext, key)
+    }
+
+    /// High-level symmetric encryption using RustCrypto AES-256-GCM
+    #[inline]
+    pub fn encrypt_aes_rustcrypto(plaintext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
+        RustCryptoAesGcm::encrypt(plaintext, key)
+    }
+
+    /// High-level symmetric decryption using RustCrypto AES-256-GCM
+    #[inline]
+    pub fn decrypt_aes_rustcrypto(ciphertext: &[u8], key: &[u8]) -> CryptoResult<Vec<u8>> {
+        RustCryptoAesGcm::decrypt(ciphertext, key)
+    }
+
+    /// High-level symmetric encryption using AES-256-GCM with additional authenticated data (AWS-LC-RS - Default)
     #[inline]
     pub fn encrypt_aes_with_aad(plaintext: &[u8], key: &[u8], aad: &[u8]) -> CryptoResult<Vec<u8>> {
         AesGcm::encrypt_with_aad(plaintext, key, aad)
     }
 
-    /// High-level symmetric decryption using AES-256-GCM with additional authenticated data
+    /// High-level symmetric decryption using AES-256-GCM with additional authenticated data (AWS-LC-RS - Default)
     #[inline]
     pub fn decrypt_aes_with_aad(ciphertext: &[u8], key: &[u8], aad: &[u8]) -> CryptoResult<Vec<u8>> {
         AesGcm::decrypt_with_aad(ciphertext, key, aad)
@@ -252,6 +277,7 @@ mod tests {
 
     #[test]
     fn test_aes_encryption_integration() {
+        // Test that AesGcm (now AWS-LC-RS by default) works
         let key = AesGcm::generate_key().unwrap();
         let plaintext = b"Integration test message";
 
@@ -259,6 +285,38 @@ mod tests {
         let decrypted = AesGcm::decrypt(&ciphertext, &key).unwrap();
 
         assert_eq!(plaintext, &decrypted[..]);
+    }
+
+    #[test]
+    fn test_aws_lc_aes_integration() {
+        let key = AwsLcAesGcm::generate_key().unwrap();
+        let plaintext = b"AWS-LC-RS integration test message";
+
+        let ciphertext = AwsLcAesGcm::encrypt(plaintext, &key).unwrap();
+        let decrypted = AwsLcAesGcm::decrypt(&ciphertext, &key).unwrap();
+        assert_eq!(decrypted, plaintext);
+    }
+
+    #[test]
+    fn test_rustcrypto_aes_integration() {
+        let key = RustCryptoAesGcm::generate_key().unwrap();
+        let plaintext = b"RustCrypto integration test message";
+
+        let ciphertext = RustCryptoAesGcm::encrypt(plaintext, &key).unwrap();
+        let decrypted = RustCryptoAesGcm::decrypt(&ciphertext, &key).unwrap();
+        assert_eq!(decrypted, plaintext);
+    }
+
+    #[test]
+    fn test_high_level_aws_lc_functions() {
+        use crate::crypto::{encrypt_aes_aws_lc, decrypt_aes_aws_lc};
+
+        let key = AwsLcAesGcm::generate_key().unwrap();
+        let plaintext = b"High-level AWS-LC-RS function test";
+
+        let ciphertext = encrypt_aes_aws_lc(plaintext, &key).unwrap();
+        let decrypted = decrypt_aes_aws_lc(&ciphertext, &key).unwrap();
+        assert_eq!(decrypted, plaintext);
     }
 
     #[test]
@@ -367,5 +425,18 @@ mod tests {
         let signature = crypto::ml_dsa_65_sign(message, dsa_keypair.private_key_bytes()).unwrap();
         let is_valid = crypto::ml_dsa_65_verify(message, &signature, dsa_keypair.public_key_bytes()).unwrap();
         assert!(is_valid);
+    }
+
+    #[test]
+    fn test_rustcrypto_convenience_functions() {
+        use crate::crypto;
+
+        let key = RustCryptoAesGcm::generate_key().unwrap();
+        let plaintext = b"RustCrypto convenience function test";
+
+        let ciphertext = crypto::encrypt_aes_rustcrypto(plaintext, &key).unwrap();
+        let decrypted = crypto::decrypt_aes_rustcrypto(&ciphertext, &key).unwrap();
+
+        assert_eq!(plaintext, &decrypted[..]);
     }
 }

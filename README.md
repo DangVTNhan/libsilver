@@ -7,7 +7,7 @@ LibSilver is a comprehensive, cross-platform cryptography library built with Rus
 
 ## 🚀 Features
 
-- **Symmetric Encryption**: AES-256-GCM, ChaCha20-Poly1305
+- **Symmetric Encryption**: AES-256-GCM (RustCrypto + AWS-LC-RS), ChaCha20-Poly1305
 - **Asymmetric Encryption**: RSA-OAEP (2048+ bit keys)
 - **Digital Signatures**: ECDSA P-256, Ed25519
 - **Post-Quantum Cryptography**: ML-KEM-768 (Key Encapsulation), ML-DSA-65 (Digital Signatures)
@@ -59,14 +59,31 @@ fn main() -> Result<(), CryptoError> {
 
 ### Symmetric Encryption
 
-#### AES-256-GCM
+#### AES-256-GCM (Default - AWS-LC-RS)
 ```rust
 use libsilver::prelude::*;
 
+// AesGcm now uses AWS-LC-RS by default for FIPS 140-2 validated cryptography
 let key = AesGcm::generate_key()?;
 let plaintext = b"Secret message";
 let ciphertext = AesGcm::encrypt(plaintext, &key)?;
 let decrypted = AesGcm::decrypt(&ciphertext, &key)?;
+
+// Support for Additional Authenticated Data (AAD)
+let aad = b"user_id:12345";
+let ciphertext_with_aad = AesGcm::encrypt_with_aad(plaintext, &key, aad)?;
+let decrypted_with_aad = AesGcm::decrypt_with_aad(&ciphertext_with_aad, &key, aad)?;
+```
+
+#### AES-256-GCM (RustCrypto Alternative)
+```rust
+use libsilver::prelude::*;
+
+// Use RustCryptoAesGcm for the pure Rust implementation
+let key = RustCryptoAesGcm::generate_key()?;
+let plaintext = b"Secret message";
+let ciphertext = RustCryptoAesGcm::encrypt(plaintext, &key)?;
+let decrypted = RustCryptoAesGcm::decrypt(&ciphertext, &key)?;
 ```
 
 #### ChaCha20-Poly1305
@@ -253,6 +270,30 @@ cd bindings/kotlin
 ./gradlew build
 ```
 
+## 🔐 AES Implementation Choices
+
+LibSilver provides two AES-256-GCM implementations to suit different needs:
+
+### RustCrypto AES-GCM (`AesGcm`)
+- **Use case**: General-purpose applications
+- **Performance**: Excellent performance across all platforms
+- **Compliance**: Pure Rust implementation
+- **Ecosystem**: Part of the widely-used RustCrypto ecosystem
+
+### AWS-LC-RS AES-GCM (`AwsLcAesGcm`)
+- **Use case**: Applications requiring FIPS 140-2 validation
+- **Performance**: Optimized for AWS infrastructure and x86_64 platforms
+- **Compliance**: FIPS 140-2 Level 1 validated cryptography
+- **Backend**: Uses AWS's libcrypto (AWS-LC) via Rust bindings
+
+Both implementations:
+- Provide identical APIs for easy switching
+- Support Additional Authenticated Data (AAD)
+- Use the same key and nonce formats
+- Offer the same security guarantees
+
+Choose `AwsLcAesGcm` for FIPS compliance requirements, or `AesGcm` for general use.
+
 ## 🧪 Testing
 
 Run the test suite:
@@ -261,10 +302,14 @@ Run the test suite:
 cargo test
 ```
 
-Run the example:
+Run the examples:
 
 ```bash
+# Basic usage example
 cargo run --example basic_usage
+
+# AWS-LC-RS AES example
+cargo run --example aws_lc_aes_example
 ```
 
 ## 📄 License

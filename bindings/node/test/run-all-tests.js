@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { runAllTests } = require('./test.js');
+const { runAllTests: runAwsLcAesTests } = require('./aws-lc-aes-test.js');
 const { runPostQuantumTests } = require('./post-quantum-test.js');
 const { runIntegrationTests } = require('./integration-test.js');
 const { runPerformanceTests } = require('./performance-test.js');
@@ -63,10 +64,25 @@ async function runAllTestSuites() {
       });
     });
     results.push({ name: 'Basic Tests', ...basicResult });
-    
+
     printSeparator();
-    
-    // 2. Post-quantum cryptography tests
+
+    // 2. AWS-LC-RS AES tests
+    const awsLcResult = await runTestSuite('AWS-LC-RS AES Tests', () => {
+      return new Promise((resolve, reject) => {
+        try {
+          runAwsLcAesTests();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+    results.push({ name: 'AWS-LC-RS AES Tests', ...awsLcResult });
+
+    printSeparator();
+
+    // 3. Post-quantum cryptography tests
     const pqResult = await runTestSuite('Post-Quantum Cryptography Tests', () => {
       return new Promise((resolve, reject) => {
         try {
@@ -78,10 +94,10 @@ async function runAllTestSuites() {
       });
     });
     results.push({ name: 'Post-Quantum Tests', ...pqResult });
-    
+
     printSeparator();
-    
-    // 3. Integration tests
+
+    // 4. Integration tests
     const integrationResult = await runTestSuite('Integration Tests', () => {
       return new Promise((resolve, reject) => {
         try {
@@ -96,7 +112,7 @@ async function runAllTestSuites() {
     
     printSeparator();
     
-    // 4. Performance tests (optional - don't fail the entire suite if these fail)
+    // 5. Performance tests (optional - don't fail the entire suite if these fail)
     const performanceResult = await runTestSuite('Performance Tests', () => {
       return new Promise((resolve, reject) => {
         try {

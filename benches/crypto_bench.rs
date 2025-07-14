@@ -9,10 +9,10 @@ fn symmetric_encryption_benchmark(c: &mut Criterion) {
     for size in data_sizes.iter() {
         let data = vec![0u8; *size];
         
-        // AES-256-GCM
+        // AES-256-GCM (RustCrypto)
         let aes_key = AesGcm::generate_key().unwrap();
         group.bench_with_input(
-            BenchmarkId::new("AES-256-GCM_encrypt", size),
+            BenchmarkId::new("AES-256-GCM-RustCrypto_encrypt", size),
             size,
             |b, _| {
                 b.iter(|| {
@@ -20,14 +20,37 @@ fn symmetric_encryption_benchmark(c: &mut Criterion) {
                 })
             },
         );
-        
+
         let aes_ciphertext = AesGcm::encrypt(&data, &aes_key).unwrap();
         group.bench_with_input(
-            BenchmarkId::new("AES-256-GCM_decrypt", size),
+            BenchmarkId::new("AES-256-GCM-RustCrypto_decrypt", size),
             size,
             |b, _| {
                 b.iter(|| {
                     AesGcm::decrypt(black_box(&aes_ciphertext), black_box(&aes_key)).unwrap()
+                })
+            },
+        );
+
+        // AES-256-GCM (AWS-LC-RS)
+        let aws_lc_key = AwsLcAesGcm::generate_key().unwrap();
+        group.bench_with_input(
+            BenchmarkId::new("AES-256-GCM-AWS-LC-RS_encrypt", size),
+            size,
+            |b, _| {
+                b.iter(|| {
+                    AwsLcAesGcm::encrypt(black_box(&data), black_box(&aws_lc_key)).unwrap()
+                })
+            },
+        );
+
+        let aws_lc_ciphertext = AwsLcAesGcm::encrypt(&data, &aws_lc_key).unwrap();
+        group.bench_with_input(
+            BenchmarkId::new("AES-256-GCM-AWS-LC-RS_decrypt", size),
+            size,
+            |b, _| {
+                b.iter(|| {
+                    AwsLcAesGcm::decrypt(black_box(&aws_lc_ciphertext), black_box(&aws_lc_key)).unwrap()
                 })
             },
         );
