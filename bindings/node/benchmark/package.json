@@ -6,18 +6,6 @@
   "type": "module",
   "scripts": {
     "benchmark": "node --max-old-space-size=4096 benchmark-runner.js",
-    "benchmark:quick": "node --max-old-space-size=2048 benchmark-runner.js --quick",
-    "benchmark:conservative": "node conservative-benchmark.js",
-    "benchmark:minimal": "node minimal-test.js",
-    "benchmark:symmetric": "node --max-old-space-size=2048 benchmark-runner.js --category symmetric",
-    "benchmark:asymmetric": "node --max-old-space-size=2048 benchmark-runner.js --category asymmetric",
-    "benchmark:hash": "node --max-old-space-size=2048 benchmark-runner.js --category hash",
-    "benchmark:kdf": "node --max-old-space-size=2048 benchmark-runner.js --category kdf",
-    "benchmark:pqc": "node --max-old-space-size=2048 benchmark-runner.js --category pqc",
-    "memory": "node --expose-gc --max-old-space-size=2048 memory-benchmark.js",
-    "analysis": "node analysis.js",
-    "report": "node benchmark-runner.js --report-only",
-    "all": "npm run benchmark && npm run report"
   },
   "dependencies": {
     "@noble/ciphers": "^0.5.3",
