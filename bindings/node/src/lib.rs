@@ -1,8 +1,8 @@
+use libsilver::core::symmetric::RustCryptoAesGcm;
+use libsilver::core::*;
+use libsilver::error::CryptoError;
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
-use libsilver::core::*;
-use libsilver::core::symmetric::RustCryptoAesGcm;
-use libsilver::error::CryptoError;
 
 /// Convert CryptoError to napi::Error
 fn crypto_error_to_napi(err: CryptoError) -> napi::Error {
@@ -45,21 +45,33 @@ impl SymmetricCrypto {
 
     /// Encrypt data with Additional Authenticated Data (AAD) using AES-256-GCM (uses AWS-LC-RS by default)
     #[napi]
-    pub fn encrypt_aes_with_aad(plaintext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+    pub fn encrypt_aes_with_aad(
+        plaintext: Buffer,
+        key: Buffer,
+        aad: Buffer,
+    ) -> napi::Result<Buffer> {
         let ciphertext = to_napi_result!(AesGcm::encrypt_with_aad(&plaintext, &key, &aad))?;
         Ok(Buffer::from(ciphertext))
     }
 
     /// Decrypt data with Additional Authenticated Data (AAD) using AES-256-GCM (uses AWS-LC-RS by default)
     #[napi]
-    pub fn decrypt_aes_with_aad(ciphertext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+    pub fn decrypt_aes_with_aad(
+        ciphertext: Buffer,
+        key: Buffer,
+        aad: Buffer,
+    ) -> napi::Result<Buffer> {
         let plaintext = to_napi_result!(AesGcm::decrypt_with_aad(&ciphertext, &key, &aad))?;
         Ok(Buffer::from(plaintext))
     }
 
     /// Encrypt data with provided nonce using AES-256-GCM (uses AWS-LC-RS by default, for testing purposes)
     #[napi]
-    pub fn encrypt_aes_with_nonce(plaintext: Buffer, key: Buffer, nonce: Buffer) -> napi::Result<Buffer> {
+    pub fn encrypt_aes_with_nonce(
+        plaintext: Buffer,
+        key: Buffer,
+        nonce: Buffer,
+    ) -> napi::Result<Buffer> {
         let ciphertext = to_napi_result!(AesGcm::encrypt_with_nonce(&plaintext, &key, &nonce))?;
         Ok(Buffer::from(ciphertext))
     }
@@ -129,8 +141,13 @@ impl AwsLcAesCrypto {
 
     /// Encrypt data with provided nonce using AWS-LC-RS AES-256-GCM (for testing purposes)
     #[napi]
-    pub fn encrypt_with_nonce(plaintext: Buffer, key: Buffer, nonce: Buffer) -> napi::Result<Buffer> {
-        let ciphertext = to_napi_result!(AwsLcAesGcm::encrypt_with_nonce(&plaintext, &key, &nonce))?;
+    pub fn encrypt_with_nonce(
+        plaintext: Buffer,
+        key: Buffer,
+        nonce: Buffer,
+    ) -> napi::Result<Buffer> {
+        let ciphertext =
+            to_napi_result!(AwsLcAesGcm::encrypt_with_nonce(&plaintext, &key, &nonce))?;
         Ok(Buffer::from(ciphertext))
     }
 }
@@ -165,21 +182,29 @@ impl RustCryptoAesCrypto {
     /// Encrypt data with Additional Authenticated Data (AAD) using RustCrypto AES-256-GCM
     #[napi]
     pub fn encrypt_with_aad(plaintext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
-        let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt_with_aad(&plaintext, &key, &aad))?;
+        let ciphertext =
+            to_napi_result!(RustCryptoAesGcm::encrypt_with_aad(&plaintext, &key, &aad))?;
         Ok(Buffer::from(ciphertext))
     }
 
     /// Decrypt data with Additional Authenticated Data (AAD) using RustCrypto AES-256-GCM
     #[napi]
     pub fn decrypt_with_aad(ciphertext: Buffer, key: Buffer, aad: Buffer) -> napi::Result<Buffer> {
-        let plaintext = to_napi_result!(RustCryptoAesGcm::decrypt_with_aad(&ciphertext, &key, &aad))?;
+        let plaintext =
+            to_napi_result!(RustCryptoAesGcm::decrypt_with_aad(&ciphertext, &key, &aad))?;
         Ok(Buffer::from(plaintext))
     }
 
     /// Encrypt data with provided nonce using RustCrypto AES-256-GCM (for testing purposes)
     #[napi]
-    pub fn encrypt_with_nonce(plaintext: Buffer, key: Buffer, nonce: Buffer) -> napi::Result<Buffer> {
-        let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt_with_nonce(&plaintext, &key, &nonce))?;
+    pub fn encrypt_with_nonce(
+        plaintext: Buffer,
+        key: Buffer,
+        nonce: Buffer,
+    ) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt_with_nonce(
+            &plaintext, &key, &nonce
+        ))?;
         Ok(Buffer::from(ciphertext))
     }
 }
@@ -237,9 +262,16 @@ impl AsymmetricCrypto {
 
     /// Verify Ed25519 signature
     #[napi]
-    pub fn verify_ed25519(message: Buffer, signature: Buffer, verifying_key_bytes: Buffer) -> napi::Result<bool> {
-        let verifying_key = to_napi_result!(Ed25519KeyPair::verifying_key_from_bytes(&verifying_key_bytes))?;
-        let is_valid = to_napi_result!(Ed25519Crypto::verify(&message, &signature, &verifying_key))?;
+    pub fn verify_ed25519(
+        message: Buffer,
+        signature: Buffer,
+        verifying_key_bytes: Buffer,
+    ) -> napi::Result<bool> {
+        let verifying_key = to_napi_result!(Ed25519KeyPair::verifying_key_from_bytes(
+            &verifying_key_bytes
+        ))?;
+        let is_valid =
+            to_napi_result!(Ed25519Crypto::verify(&message, &signature, &verifying_key))?;
         Ok(is_valid)
     }
 
@@ -260,8 +292,13 @@ impl AsymmetricCrypto {
 
     /// Verify ECDSA P-256 signature
     #[napi]
-    pub fn verify_ecdsa(message: Buffer, signature: Buffer, verifying_key_bytes: Buffer) -> napi::Result<bool> {
-        let verifying_key = to_napi_result!(EcdsaKeyPair::verifying_key_from_bytes(&verifying_key_bytes))?;
+    pub fn verify_ecdsa(
+        message: Buffer,
+        signature: Buffer,
+        verifying_key_bytes: Buffer,
+    ) -> napi::Result<bool> {
+        let verifying_key =
+            to_napi_result!(EcdsaKeyPair::verifying_key_from_bytes(&verifying_key_bytes))?;
         let is_valid = to_napi_result!(EcdsaCrypto::verify(&message, &signature, &verifying_key))?;
         Ok(is_valid)
     }
@@ -331,7 +368,11 @@ impl HashFunctions {
 
     /// Verify HMAC-SHA256
     #[napi]
-    pub fn verify_hmac_sha256(key: Buffer, message: Buffer, expected_mac: Buffer) -> napi::Result<bool> {
+    pub fn verify_hmac_sha256(
+        key: Buffer,
+        message: Buffer,
+        expected_mac: Buffer,
+    ) -> napi::Result<bool> {
         let is_valid = to_napi_result!(Hmac::verify_sha256(&key, &message, &expected_mac))?;
         Ok(is_valid)
     }
@@ -345,7 +386,11 @@ impl HashFunctions {
 
     /// Verify HMAC-SHA512
     #[napi]
-    pub fn verify_hmac_sha512(key: Buffer, message: Buffer, expected_mac: Buffer) -> napi::Result<bool> {
+    pub fn verify_hmac_sha512(
+        key: Buffer,
+        message: Buffer,
+        expected_mac: Buffer,
+    ) -> napi::Result<bool> {
         let is_valid = to_napi_result!(Hmac::verify_sha512(&key, &message, &expected_mac))?;
         Ok(is_valid)
     }
@@ -366,33 +411,73 @@ impl KeyDerivation {
 
     /// Derive key using PBKDF2-SHA256
     #[napi]
-    pub fn pbkdf2_sha256(password: Buffer, salt: Buffer, iterations: u32, length: u32) -> napi::Result<Buffer> {
-        let key = to_napi_result!(Pbkdf2Kdf::derive_sha256(&password, &salt, iterations, length as usize))?;
+    pub fn pbkdf2_sha256(
+        password: Buffer,
+        salt: Buffer,
+        iterations: u32,
+        length: u32,
+    ) -> napi::Result<Buffer> {
+        let key = to_napi_result!(Pbkdf2Kdf::derive_sha256(
+            &password,
+            &salt,
+            iterations,
+            length as usize
+        ))?;
         Ok(Buffer::from(key))
     }
 
     /// Derive key using PBKDF2-SHA512
     #[napi]
-    pub fn pbkdf2_sha512(password: Buffer, salt: Buffer, iterations: u32, length: u32) -> napi::Result<Buffer> {
-        let key = to_napi_result!(Pbkdf2Kdf::derive_sha512(&password, &salt, iterations, length as usize))?;
+    pub fn pbkdf2_sha512(
+        password: Buffer,
+        salt: Buffer,
+        iterations: u32,
+        length: u32,
+    ) -> napi::Result<Buffer> {
+        let key = to_napi_result!(Pbkdf2Kdf::derive_sha512(
+            &password,
+            &salt,
+            iterations,
+            length as usize
+        ))?;
         Ok(Buffer::from(key))
     }
 
     /// Derive key using HKDF-SHA256
     #[napi]
-    pub fn hkdf_sha256(input_key: Buffer, salt: Option<Buffer>, info: Option<Buffer>, length: u32) -> napi::Result<Buffer> {
+    pub fn hkdf_sha256(
+        input_key: Buffer,
+        salt: Option<Buffer>,
+        info: Option<Buffer>,
+        length: u32,
+    ) -> napi::Result<Buffer> {
         let salt_ref = salt.as_ref().map(|s| s.as_ref());
         let info_bytes = info.as_ref().map(|i| i.as_ref()).unwrap_or(&[]);
-        let key = to_napi_result!(HkdfKdf::derive_sha256(&input_key, salt_ref, info_bytes, length as usize))?;
+        let key = to_napi_result!(HkdfKdf::derive_sha256(
+            &input_key,
+            salt_ref,
+            info_bytes,
+            length as usize
+        ))?;
         Ok(Buffer::from(key))
     }
 
     /// Derive key using HKDF-SHA512
     #[napi]
-    pub fn hkdf_sha512(input_key: Buffer, salt: Option<Buffer>, info: Option<Buffer>, length: u32) -> napi::Result<Buffer> {
+    pub fn hkdf_sha512(
+        input_key: Buffer,
+        salt: Option<Buffer>,
+        info: Option<Buffer>,
+        length: u32,
+    ) -> napi::Result<Buffer> {
         let salt_ref = salt.as_ref().map(|s| s.as_ref());
         let info_bytes = info.as_ref().map(|i| i.as_ref()).unwrap_or(&[]);
-        let key = to_napi_result!(HkdfKdf::derive_sha512(&input_key, salt_ref, info_bytes, length as usize))?;
+        let key = to_napi_result!(HkdfKdf::derive_sha512(
+            &input_key,
+            salt_ref,
+            info_bytes,
+            length as usize
+        ))?;
         Ok(Buffer::from(key))
     }
 }
@@ -647,7 +732,8 @@ impl MlKem512Crypto {
     /// Decapsulate shared secret using ML-KEM-512
     #[napi]
     pub fn decapsulate(ciphertext: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
-        let shared_secret = to_napi_result!(MlKem512::decapsulate(&ciphertext, &private_key_bytes))?;
+        let shared_secret =
+            to_napi_result!(MlKem512::decapsulate(&ciphertext, &private_key_bytes))?;
         Ok(Buffer::from(shared_secret))
     }
 
@@ -686,7 +772,8 @@ impl MlKem768Crypto {
     /// Decapsulate shared secret using ML-KEM-768
     #[napi]
     pub fn decapsulate(ciphertext: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
-        let shared_secret = to_napi_result!(MlKem768::decapsulate(&ciphertext, &private_key_bytes))?;
+        let shared_secret =
+            to_napi_result!(MlKem768::decapsulate(&ciphertext, &private_key_bytes))?;
         Ok(Buffer::from(shared_secret))
     }
 
@@ -725,7 +812,8 @@ impl MlKem1024Crypto {
     /// Decapsulate shared secret using ML-KEM-1024
     #[napi]
     pub fn decapsulate(ciphertext: Buffer, private_key_bytes: Buffer) -> napi::Result<Buffer> {
-        let shared_secret = to_napi_result!(MlKem1024::decapsulate(&ciphertext, &private_key_bytes))?;
+        let shared_secret =
+            to_napi_result!(MlKem1024::decapsulate(&ciphertext, &private_key_bytes))?;
         Ok(Buffer::from(shared_secret))
     }
 
@@ -763,7 +851,11 @@ impl MlDsa44Crypto {
 
     /// Verify ML-DSA-44 signature
     #[napi]
-    pub fn verify(message: Buffer, signature: Buffer, public_key_bytes: Buffer) -> napi::Result<bool> {
+    pub fn verify(
+        message: Buffer,
+        signature: Buffer,
+        public_key_bytes: Buffer,
+    ) -> napi::Result<bool> {
         let is_valid = to_napi_result!(MlDsa44::verify(&message, &signature, &public_key_bytes))?;
         Ok(is_valid)
     }
@@ -801,7 +893,11 @@ impl MlDsa65Crypto {
 
     /// Verify ML-DSA-65 signature
     #[napi]
-    pub fn verify(message: Buffer, signature: Buffer, public_key_bytes: Buffer) -> napi::Result<bool> {
+    pub fn verify(
+        message: Buffer,
+        signature: Buffer,
+        public_key_bytes: Buffer,
+    ) -> napi::Result<bool> {
         let is_valid = to_napi_result!(MlDsa65::verify(&message, &signature, &public_key_bytes))?;
         Ok(is_valid)
     }
@@ -839,7 +935,11 @@ impl MlDsa87Crypto {
 
     /// Verify ML-DSA-87 signature
     #[napi]
-    pub fn verify(message: Buffer, signature: Buffer, public_key_bytes: Buffer) -> napi::Result<bool> {
+    pub fn verify(
+        message: Buffer,
+        signature: Buffer,
+        public_key_bytes: Buffer,
+    ) -> napi::Result<bool> {
         let is_valid = to_napi_result!(MlDsa87::verify(&message, &signature, &public_key_bytes))?;
         Ok(is_valid)
     }

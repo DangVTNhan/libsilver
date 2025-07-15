@@ -1,15 +1,21 @@
-use crate::error::{CryptoError, CryptoResult, INVALID_KEY_LENGTH_AES, INVALID_KEY_LENGTH_CHACHA, INVALID_NONCE_LENGTH, CIPHERTEXT_TOO_SHORT, AES_GCM_ENCRYPTION_FAILED, AES_GCM_DECRYPTION_FAILED, AWS_LC_AES_GCM_ENCRYPTION_FAILED, AWS_LC_AES_GCM_DECRYPTION_FAILED, CHACHA20_ENCRYPTION_FAILED, CHACHA20_DECRYPTION_FAILED};
 use crate::core::random::SecureRandom;
-use aes_gcm::{Aes256Gcm, Key, Nonce, KeyInit};
+use crate::error::{
+    CryptoError, CryptoResult, AES_GCM_DECRYPTION_FAILED, AES_GCM_ENCRYPTION_FAILED,
+    AWS_LC_AES_GCM_DECRYPTION_FAILED, AWS_LC_AES_GCM_ENCRYPTION_FAILED, CHACHA20_DECRYPTION_FAILED,
+    CHACHA20_ENCRYPTION_FAILED, CIPHERTEXT_TOO_SHORT, INVALID_KEY_LENGTH_AES,
+    INVALID_KEY_LENGTH_CHACHA, INVALID_NONCE_LENGTH,
+};
 use aes_gcm::aead::Aead;
+use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce};
+use aws_lc_rs::aead::{
+    Aad, LessSafeKey, Nonce as AwsNonce, RandomizedNonceKey, UnboundKey, AES_256_GCM,
+};
 use chacha20poly1305::{ChaCha20Poly1305, Key as ChaChaKey, Nonce as ChaChaNonce};
-use aws_lc_rs::aead::{Aad, RandomizedNonceKey, LessSafeKey, Nonce as AwsNonce, UnboundKey, AES_256_GCM};
-
 
 // Constants for AES-GCM
-const AES_KEY_SIZE: usize = 32;  // 256 bits
+const AES_KEY_SIZE: usize = 32; // 256 bits
 const AES_NONCE_SIZE: usize = 12; // 96 bits
-const AES_TAG_SIZE: usize = 16;   // 128 bits
+const AES_TAG_SIZE: usize = 16; // 128 bits
 const MIN_CIPHERTEXT_SIZE: usize = AES_NONCE_SIZE + AES_TAG_SIZE; // 28 bytes minimum
 
 /// AES-256-GCM symmetric encryption using RustCrypto
@@ -36,7 +42,8 @@ impl RustCryptoAesGcm {
         let nonce = Nonce::from_slice(&nonce_bytes);
 
         // Encrypt
-        let ciphertext = cipher.encrypt(nonce, plaintext)
+        let ciphertext = cipher
+            .encrypt(nonce, plaintext)
             .map_err(|_| CryptoError::EncryptionFailed(AES_GCM_ENCRYPTION_FAILED))?;
 
         // Prepend nonce to ciphertext - pre-allocate exact capacity
@@ -62,7 +69,8 @@ impl RustCryptoAesGcm {
         let nonce = Nonce::from_slice(nonce_bytes);
 
         // Decrypt
-        let plaintext = cipher.decrypt(nonce, ciphertext)
+        let plaintext = cipher
+            .decrypt(nonce, ciphertext)
             .map_err(|_| CryptoError::DecryptionFailed(AES_GCM_DECRYPTION_FAILED))?;
 
         Ok(plaintext)
@@ -78,7 +86,8 @@ impl RustCryptoAesGcm {
         let cipher = Aes256Gcm::new(key);
         let nonce = Nonce::from_slice(nonce);
 
-        let ciphertext = cipher.encrypt(nonce, plaintext)
+        let ciphertext = cipher
+            .encrypt(nonce, plaintext)
             .map_err(|_| CryptoError::EncryptionFailed(AES_GCM_ENCRYPTION_FAILED))?;
 
         Ok(ciphertext)
@@ -97,7 +106,14 @@ impl RustCryptoAesGcm {
         let nonce = Nonce::from_slice(&nonce_bytes);
 
         // Encrypt with AAD
-        let ciphertext = cipher.encrypt(nonce, aes_gcm::aead::Payload { msg: plaintext, aad })
+        let ciphertext = cipher
+            .encrypt(
+                nonce,
+                aes_gcm::aead::Payload {
+                    msg: plaintext,
+                    aad,
+                },
+            )
             .map_err(|_| CryptoError::EncryptionFailed(AES_GCM_ENCRYPTION_FAILED))?;
 
         // Prepend nonce to ciphertext
@@ -110,7 +126,11 @@ impl RustCryptoAesGcm {
 
     /// Decrypt with associated data (AAD) for additional authentication
     #[inline]
-    pub fn decrypt_with_aad(ciphertext_with_nonce: &[u8], key: &[u8], aad: &[u8]) -> CryptoResult<Vec<u8>> {
+    pub fn decrypt_with_aad(
+        ciphertext_with_nonce: &[u8],
+        key: &[u8],
+        aad: &[u8],
+    ) -> CryptoResult<Vec<u8>> {
         Self::validate_key(key)?;
         Self::validate_ciphertext_length(ciphertext_with_nonce)?;
 
@@ -122,7 +142,14 @@ impl RustCryptoAesGcm {
         let nonce = Nonce::from_slice(nonce_bytes);
 
         // Decrypt with AAD
-        let plaintext = cipher.decrypt(nonce, aes_gcm::aead::Payload { msg: ciphertext, aad })
+        let plaintext = cipher
+            .decrypt(
+                nonce,
+                aes_gcm::aead::Payload {
+                    msg: ciphertext,
+                    aad,
+                },
+            )
             .map_err(|_| CryptoError::DecryptionFailed(AES_GCM_DECRYPTION_FAILED))?;
 
         Ok(plaintext)
@@ -174,18 +201,24 @@ impl AwsLcAesGcm {
         let randomized_key = RandomizedNonceKey::new(&AES_256_GCM, key)
             .map_err(|_| CryptoError::InvalidKey(INVALID_KEY_LENGTH_AES))?;
 
-        // Prepare plaintext for in-place encryption
-        let mut in_out = plaintext.to_vec();
+        // Pre-allocate buffer with exact capacity to avoid reallocation
+        let mut in_out = Vec::with_capacity(plaintext.len());
+        in_out.extend_from_slice(plaintext);
 
         // Encrypt in place - RandomizedNonceKey automatically generates secure nonce
-        let (nonce, tag) = randomized_key.seal_in_place_separate_tag(Aad::empty(), &mut in_out)
+        let (nonce, tag) = randomized_key
+            .seal_in_place_separate_tag(Aad::empty(), &mut in_out)
             .map_err(|_| CryptoError::EncryptionFailed(AWS_LC_AES_GCM_ENCRYPTION_FAILED))?;
 
-        // Combine nonce + ciphertext + tag
-        let mut result = Vec::with_capacity(AES_NONCE_SIZE + in_out.len() + tag.as_ref().len());
-        result.extend_from_slice(nonce.as_ref());
+        // Pre-allocate final result buffer with exact capacity
+        let nonce_bytes = nonce.as_ref();
+        let tag_bytes = tag.as_ref();
+        let total_len = nonce_bytes.len() + in_out.len() + tag_bytes.len();
+
+        let mut result = Vec::with_capacity(total_len);
+        result.extend_from_slice(nonce_bytes);
         result.extend_from_slice(&in_out);
-        result.extend_from_slice(tag.as_ref());
+        result.extend_from_slice(tag_bytes);
 
         Ok(result)
     }
@@ -206,11 +239,13 @@ impl AwsLcAesGcm {
         let nonce = AwsNonce::try_assume_unique_for_key(nonce_bytes)
             .map_err(|_| CryptoError::InvalidInput(INVALID_NONCE_LENGTH))?;
 
-        // Prepare ciphertext for in-place decryption
-        let mut in_out = ciphertext_and_tag.to_vec();
+        // Pre-allocate buffer with exact capacity to avoid reallocation
+        let mut in_out = Vec::with_capacity(ciphertext_and_tag.len());
+        in_out.extend_from_slice(ciphertext_and_tag);
 
         // Decrypt in place
-        let plaintext = randomized_key.open_in_place(nonce, Aad::empty(), &mut in_out)
+        let plaintext = randomized_key
+            .open_in_place(nonce, Aad::empty(), &mut in_out)
             .map_err(|_| CryptoError::DecryptionFailed(AWS_LC_AES_GCM_DECRYPTION_FAILED))?;
 
         Ok(plaintext.to_vec())
@@ -231,17 +266,22 @@ impl AwsLcAesGcm {
         let aws_nonce = AwsNonce::try_assume_unique_for_key(nonce)
             .map_err(|_| CryptoError::InvalidInput(INVALID_NONCE_LENGTH))?;
 
-        // Prepare plaintext for in-place encryption
-        let mut in_out = plaintext.to_vec();
+        // Pre-allocate buffer with exact capacity to avoid reallocation
+        let mut in_out = Vec::with_capacity(plaintext.len());
+        in_out.extend_from_slice(plaintext);
 
         // Encrypt in place and get separate tag
-        let tag = less_safe_key.seal_in_place_separate_tag(aws_nonce, Aad::empty(), &mut in_out)
+        let tag = less_safe_key
+            .seal_in_place_separate_tag(aws_nonce, Aad::empty(), &mut in_out)
             .map_err(|_| CryptoError::EncryptionFailed(AWS_LC_AES_GCM_ENCRYPTION_FAILED))?;
 
-        // Combine ciphertext + tag (no nonce prepended for this method)
-        let mut result = Vec::with_capacity(in_out.len() + tag.as_ref().len());
+        // Pre-allocate final result buffer with exact capacity
+        let tag_bytes = tag.as_ref();
+        let total_len = in_out.len() + tag_bytes.len();
+
+        let mut result = Vec::with_capacity(total_len);
         result.extend_from_slice(&in_out);
-        result.extend_from_slice(tag.as_ref());
+        result.extend_from_slice(tag_bytes);
 
         Ok(result)
     }
@@ -255,25 +295,35 @@ impl AwsLcAesGcm {
         let randomized_key = RandomizedNonceKey::new(&AES_256_GCM, key)
             .map_err(|_| CryptoError::InvalidKey(INVALID_KEY_LENGTH_AES))?;
 
-        // Prepare plaintext for in-place encryption
-        let mut in_out = plaintext.to_vec();
+        // Pre-allocate buffer with exact capacity to avoid reallocation
+        let mut in_out = Vec::with_capacity(plaintext.len());
+        in_out.extend_from_slice(plaintext);
 
         // Encrypt with AAD - RandomizedNonceKey automatically generates secure nonce
-        let (nonce, tag) = randomized_key.seal_in_place_separate_tag(Aad::from(aad), &mut in_out)
+        let (nonce, tag) = randomized_key
+            .seal_in_place_separate_tag(Aad::from(aad), &mut in_out)
             .map_err(|_| CryptoError::EncryptionFailed(AWS_LC_AES_GCM_ENCRYPTION_FAILED))?;
 
-        // Combine nonce + ciphertext + tag
-        let mut result = Vec::with_capacity(AES_NONCE_SIZE + in_out.len() + tag.as_ref().len());
-        result.extend_from_slice(nonce.as_ref());
+        // Pre-allocate final result buffer with exact capacity
+        let nonce_bytes = nonce.as_ref();
+        let tag_bytes = tag.as_ref();
+        let total_len = nonce_bytes.len() + in_out.len() + tag_bytes.len();
+
+        let mut result = Vec::with_capacity(total_len);
+        result.extend_from_slice(nonce_bytes);
         result.extend_from_slice(&in_out);
-        result.extend_from_slice(tag.as_ref());
+        result.extend_from_slice(tag_bytes);
 
         Ok(result)
     }
 
     /// Decrypt with associated data (AAD) for additional authentication
     #[inline]
-    pub fn decrypt_with_aad(ciphertext_with_nonce: &[u8], key: &[u8], aad: &[u8]) -> CryptoResult<Vec<u8>> {
+    pub fn decrypt_with_aad(
+        ciphertext_with_nonce: &[u8],
+        key: &[u8],
+        aad: &[u8],
+    ) -> CryptoResult<Vec<u8>> {
         Self::validate_key(key)?;
         Self::validate_ciphertext_length(ciphertext_with_nonce)?;
 
@@ -286,11 +336,13 @@ impl AwsLcAesGcm {
         let nonce = AwsNonce::try_assume_unique_for_key(nonce_bytes)
             .map_err(|_| CryptoError::InvalidInput(INVALID_NONCE_LENGTH))?;
 
-        // Prepare ciphertext for in-place decryption
-        let mut in_out = ciphertext_and_tag.to_vec();
+        // Pre-allocate buffer with exact capacity to avoid reallocation
+        let mut in_out = Vec::with_capacity(ciphertext_and_tag.len());
+        in_out.extend_from_slice(ciphertext_and_tag);
 
         // Decrypt with AAD
-        let plaintext = randomized_key.open_in_place(nonce, Aad::from(aad), &mut in_out)
+        let plaintext = randomized_key
+            .open_in_place(nonce, Aad::from(aad), &mut in_out)
             .map_err(|_| CryptoError::DecryptionFailed(AWS_LC_AES_GCM_DECRYPTION_FAILED))?;
 
         Ok(plaintext.to_vec())
@@ -347,7 +399,8 @@ impl ChaCha20Poly1305Cipher {
         let nonce = ChaChaNonce::from_slice(&nonce_bytes);
 
         // Encrypt
-        let ciphertext = cipher.encrypt(nonce, plaintext)
+        let ciphertext = cipher
+            .encrypt(nonce, plaintext)
             .map_err(|_| CryptoError::EncryptionFailed(CHACHA20_ENCRYPTION_FAILED))?;
 
         // Prepend nonce to ciphertext - pre-allocate exact capacity
@@ -377,7 +430,8 @@ impl ChaCha20Poly1305Cipher {
         let nonce = ChaChaNonce::from_slice(nonce_bytes);
 
         // Decrypt
-        let plaintext = cipher.decrypt(nonce, ciphertext)
+        let plaintext = cipher
+            .decrypt(nonce, ciphertext)
             .map_err(|_| CryptoError::DecryptionFailed(CHACHA20_DECRYPTION_FAILED))?;
 
         Ok(plaintext)
@@ -605,6 +659,7 @@ mod tests {
     }
 
     // Cross-implementation compatibility test
+
     #[test]
     fn test_aes_gcm_implementations_different_outputs() {
         let key = RustCryptoAesGcm::generate_key().unwrap();
