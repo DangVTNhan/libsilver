@@ -1,0 +1,27 @@
+[package]
+name = "libsilver-nodejs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nhan Dang <64256004+DangVTNhan@users.noreply.github.com>"]
+description = "Node.js bindings for LibSilver cryptography library"
+license = "MIT"
+repository = "https://github.com/DangVTNhan/libsilver"
+keywords = ["cryptography", "nodejs", "napi", "encryption", "rust"]
+categories = ["cryptography", "api-bindings"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+libsilver = { path = "../.." }
+napi = { version = "2.16", default-features = false, features = ["napi4"] }
+napi-derive = "2.16"
+
+[build-dependencies]
+napi-build = "2.1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = "symbols"

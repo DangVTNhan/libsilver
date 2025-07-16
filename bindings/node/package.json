@@ -1,0 +1,107 @@
+{
+  "name": "libsilver-nodejs",
+  "version": "0.1.7",
+  "description": "Cross-platform cryptography library for Node.js with post-quantum algorithms - built with RustCrypto",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "keywords": [
+    "cryptography",
+    "post-quantum",
+    "quantum-resistant",
+    "ml-kem",
+    "ml-dsa",
+    "nist",
+    "encryption",
+    "rust",
+    "napi",
+    "cross-platform",
+    "aes",
+    "chacha20",
+    "rsa",
+    "ed25519",
+    "ecdsa",
+    "sha256",
+    "blake3",
+    "argon2",
+    "security",
+    "crypto",
+    "hash",
+    "hmac",
+    "pbkdf2",
+    "hkdf",
+    "digital-signatures",
+    "symmetric-encryption",
+    "asymmetric-encryption",
+    "key-derivation",
+    "secure-random",
+    "key-encapsulation",
+    "quantum-safe"
+  ],
+  "author": "Nhan Dang <64256004+DangVTNhan@users.noreply.github.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DangVTNhan/libsilver.git",
+    "directory": "bindings/node"
+  },
+  "bugs": {
+    "url": "https://github.com/DangVTNhan/libsilver/issues"
+  },
+  "homepage": "https://github.com/DangVTNhan/libsilver#readme",
+  "napi": {
+    "name": "libsilver",
+    "triples": {
+      "defaults": false,
+      "additional": [
+        "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
+        "x86_64-pc-windows-msvc",
+        "aarch64-pc-windows-msvc"
+      ]
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release --js native.js --dts native.d.ts",
+    "build:debug": "napi build --platform --js native.js --dts native.d.ts",
+    "build:all": "npm run build:macos && npm run build:windows",
+    "build:macos": "export PATH=\"/opt/homebrew/opt/llvm/bin:$PATH\" && npx napi build --js native.js --dts native.d.ts  --platform --release --target aarch64-apple-darwin && npx napi build --platform --js native.js --dts native.d.ts --release --target x86_64-apple-darwin",
+    "build:windows": "export PATH=\"/opt/homebrew/opt/llvm/bin:$PATH\" && npx napi build --js native.js --dts native.d.ts --platform --release --target x86_64-pc-windows-msvc && npx napi build --platform --js native.js --dts native.d.ts --release --target aarch64-pc-windows-msvc",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "node test/test.js",
+    "test:basic": "node test/test.js",
+    "test:post-quantum": "node test/post-quantum-test.js",
+    "test:integration": "node test/integration-test.js",
+    "test:performance": "node test/performance-test.js",
+    "test:all": "node test/run-all-tests.js",
+    "test:comprehensive": "node test/run-all-tests.js --all",
+    "example": "node examples/nodejs-example.js",
+    "example:default-aes": "node examples/default-aes-example.js",
+    "example:post-quantum": "node examples/post-quantum-example.js",
+    "example:standalone": "node examples/standalone-variants-example.js",
+    "clean": "rm -rf target/ *.node",
+    "version": "napi version"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "engines": {
+    "node": ">= 14"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "optionalDependencies": {
+    "libsilver-nodejs-darwin-arm64": "0.1.7",
+    "libsilver-nodejs-darwin-x64": "0.1.7",
+    "libsilver-nodejs-win32-x64-msvc": "0.1.7",
+    "libsilver-nodejs-win32-arm64-msvc": "0.1.7"
+  }
+}

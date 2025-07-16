@@ -1,93 +1,333 @@
-# StealthVault-Libsilver
+# LibSilver - Cross-Platform Cryptography Library
 
+[![Rust](https://img.shields.io/badge/rust-1.70+-blue.svg)](https://www.rust-lang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+LibSilver is a comprehensive, cross-platform cryptography library built with RustCrypto that provides secure cryptographic primitives for multiple platforms including Node.js, Swift (iOS/macOS), and Kotlin/Java (Android/JVM).
 
-## Getting started
+## 🚀 Features
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- **Symmetric Encryption**: AES-256-GCM (RustCrypto + AWS-LC-RS), ChaCha20-Poly1305
+- **Asymmetric Encryption**: RSA-OAEP (2048+ bit keys)
+- **Digital Signatures**: ECDSA P-256, Ed25519
+- **Post-Quantum Cryptography**: ML-KEM-768 (Key Encapsulation), ML-DSA-65 (Digital Signatures)
+- **Cryptographic Hashing**: SHA-256, SHA-512, BLAKE3, HMAC
+- **Key Derivation Functions**: Argon2, HKDF, PBKDF2
+- **Secure Random Generation**: OS-backed cryptographically secure random number generation
+- **Memory Safety**: Automatic zeroization of sensitive data using the `zeroize` crate
+- **Cross-Platform**: Designed for FFI bindings to Node.js, Swift, and Kotlin/Java
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 📦 Installation
 
-## Add your files
+Add this to your `Cargo.toml`:
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+```toml
+[dependencies]
+libsilver = "0.1.0"
+```
+
+## 🔧 Quick Start
+
+```rust
+use libsilver::prelude::*;
+
+fn main() -> Result<(), CryptoError> {
+    // Symmetric encryption
+    let key = AesGcm::generate_key()?;
+    let plaintext = b"Hello, World!";
+    let ciphertext = AesGcm::encrypt(plaintext, &key)?;
+    let decrypted = AesGcm::decrypt(&ciphertext, &key)?;
+    assert_eq!(plaintext, &decrypted[..]);
+
+    // Digital signatures
+    let keypair = Ed25519Crypto::generate_keypair()?;
+    let message = b"Sign this message";
+    let signature = Ed25519Crypto::sign(message, keypair.signing_key())?;
+    let is_valid = Ed25519Crypto::verify(message, &signature, keypair.verifying_key())?;
+    assert!(is_valid);
+
+    // Hashing
+    let data = b"Hash this data";
+    let hash = Sha256Hash::hash(data)?;
+    let hex_hash = Sha256Hash::hash_hex(data)?;
+
+    Ok(())
+}
+```
+
+## 📚 API Documentation
+
+### Symmetric Encryption
+
+#### AES-256-GCM (Default - AWS-LC-RS)
+```rust
+use libsilver::prelude::*;
+
+// AesGcm now uses AWS-LC-RS by default for FIPS 140-2 validated cryptography
+let key = AesGcm::generate_key()?;
+let plaintext = b"Secret message";
+let ciphertext = AesGcm::encrypt(plaintext, &key)?;
+let decrypted = AesGcm::decrypt(&ciphertext, &key)?;
+
+// Support for Additional Authenticated Data (AAD)
+let aad = b"user_id:12345";
+let ciphertext_with_aad = AesGcm::encrypt_with_aad(plaintext, &key, aad)?;
+let decrypted_with_aad = AesGcm::decrypt_with_aad(&ciphertext_with_aad, &key, aad)?;
+```
+
+#### AES-256-GCM (RustCrypto Alternative)
+```rust
+use libsilver::prelude::*;
+
+// Use RustCryptoAesGcm for the pure Rust implementation
+let key = RustCryptoAesGcm::generate_key()?;
+let plaintext = b"Secret message";
+let ciphertext = RustCryptoAesGcm::encrypt(plaintext, &key)?;
+let decrypted = RustCryptoAesGcm::decrypt(&ciphertext, &key)?;
+```
+
+#### ChaCha20-Poly1305
+```rust
+use libsilver::prelude::*;
+
+let key = ChaCha20Poly1305Cipher::generate_key()?;
+let ciphertext = ChaCha20Poly1305Cipher::encrypt(plaintext, &key)?;
+let decrypted = ChaCha20Poly1305Cipher::decrypt(&ciphertext, &key)?;
+```
+
+### Asymmetric Encryption
+
+#### RSA-OAEP
+```rust
+use libsilver::prelude::*;
+
+let keypair = RsaCrypto::generate_keypair()?; // 2048-bit by default
+let ciphertext = RsaCrypto::encrypt(plaintext, keypair.public_key())?;
+let decrypted = RsaCrypto::decrypt(&ciphertext, keypair.private_key())?;
+```
+
+### Digital Signatures
+
+#### Ed25519
+```rust
+use libsilver::prelude::*;
+
+let keypair = Ed25519Crypto::generate_keypair()?;
+let signature = Ed25519Crypto::sign(message, keypair.signing_key())?;
+let is_valid = Ed25519Crypto::verify(message, &signature, keypair.verifying_key())?;
+```
+
+#### ECDSA P-256
+```rust
+use libsilver::prelude::*;
+
+let keypair = EcdsaCrypto::generate_keypair()?;
+let signature = EcdsaCrypto::sign(message, keypair.signing_key())?;
+let is_valid = EcdsaCrypto::verify(message, &signature, keypair.verifying_key())?;
+```
+
+### Post-Quantum Cryptography
+
+#### ML-KEM (Key Encapsulation Mechanism)
+```rust
+use libsilver::prelude::*;
+
+// Generate ML-KEM-768 key pair
+let keypair = MlKemCrypto::generate_keypair()?;
+
+// Encapsulate a shared secret
+let encapsulation = MlKemCrypto::encapsulate(
+    keypair.public_key_bytes(),
+    keypair.level(),
+)?;
+
+// Decapsulate the shared secret
+let shared_secret = MlKemCrypto::decapsulate(
+    &encapsulation.ciphertext,
+    keypair.private_key_bytes(),
+    keypair.level(),
+)?;
+```
+
+#### ML-DSA (Digital Signature Algorithm)
+```rust
+use libsilver::prelude::*;
+
+// Generate ML-DSA-65 key pair
+let keypair = MlDsaCrypto::generate_keypair()?;
+
+// Sign a message
+let signature = MlDsaCrypto::sign(
+    message,
+    keypair.private_key_bytes(),
+    keypair.level(),
+)?;
+
+// Verify the signature
+let is_valid = MlDsaCrypto::verify(
+    message,
+    &signature,
+    keypair.public_key_bytes(),
+    keypair.level(),
+)?;
+```
+
+### Cryptographic Hashing
+
+```rust
+use libsilver::prelude::*;
+
+// SHA-256
+let hash = Sha256Hash::hash(data)?;
+let hex_hash = Sha256Hash::hash_hex(data)?;
+
+// BLAKE3
+let hash = Blake3Hash::hash(data)?;
+let custom_length_hash = Blake3Hash::hash_with_length(data, 64)?;
+
+// HMAC
+let mac = Hmac::sha256(key, message)?;
+let is_valid = Hmac::verify_sha256(key, message, &mac)?;
+```
+
+### Key Derivation Functions
+
+```rust
+use libsilver::prelude::*;
+
+// Argon2 (recommended for password hashing)
+let salt = SecureRandom::generate_salt()?;
+let key = Argon2Kdf::derive_key(password, &salt, 32)?;
+
+// PBKDF2
+let key = Pbkdf2Kdf::derive_sha256(password, &salt, 100_000, 32)?;
+
+// HKDF (for key expansion)
+let key = HkdfKdf::derive_sha256(input_key, Some(&salt), info, 32)?;
+```
+
+### Secure Random Generation
+
+```rust
+use libsilver::prelude::*;
+
+let random_bytes = SecureRandom::generate_bytes(32)?;
+let secure_key = SecureRandom::generate_key(32)?; // Auto-zeroizing
+let nonce = SecureRandom::generate_nonce(12)?;
+let salt = SecureRandom::generate_salt()?;
+```
+
+## 🛡️ Security Features
+
+- **Memory Safety**: All sensitive data is automatically zeroized when dropped
+- **Secure Defaults**: Uses secure parameters and algorithms by default
+- **Constant-Time Operations**: Leverages RustCrypto's constant-time implementations
+- **No Unsafe Code**: Pure safe Rust implementation
+- **Audited Dependencies**: Built on well-audited RustCrypto crates
+
+## 📁 Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.silvertiger.tech/stealth-vault/stealthvault-libsilver.git
-git branch -M main
-git push -uf origin main
+libsilver/
+├── src/                    # Core Rust library
+│   ├── core/              # Core cryptographic implementations
+│   ├── ffi/               # FFI layer for C compatibility
+│   └── bindings/          # Language-specific bindings (Rust side)
+├── bindings/              # Platform-specific bindings
+│   ├── node/             # Node.js/JavaScript bindings ✅
+│   ├── swift/            # Swift/iOS/macOS bindings (coming soon)
+│   └── kotlin/           # Kotlin/Android/JVM bindings (coming soon)
+└── docs/                 # Documentation
 ```
 
-## Integrate with your tools
+## 🔗 Cross-Platform Support
 
-- [ ] [Set up project integrations](https://gitlab.silvertiger.tech/stealth-vault/stealthvault-libsilver/-/settings/integrations)
+LibSilver provides native bindings for multiple platforms:
 
-## Collaborate with your team
+- **Node.js**: ✅ Ready - Via NAPI-RS bindings in `bindings/node/`
+- **Swift/iOS/macOS**: 🚧 Coming Soon - Via FFI bindings in `bindings/swift/`
+- **Kotlin/Android/JVM**: 🚧 Coming Soon - Via FFI + JNI bindings in `bindings/kotlin/`
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Getting Started with Bindings
 
-## Test and Deploy
+#### Node.js
+```bash
+cd bindings/node
+npm install
+npm run build
+npm test
+```
 
-Use the built-in continuous integration in GitLab.
+#### Swift (Coming Soon)
+```bash
+cd bindings/swift
+swift build
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+#### Kotlin (Coming Soon)
+```bash
+cd bindings/kotlin
+./gradlew build
+```
 
-***
+## 🔐 AES Implementation Choices
 
-# Editing this README
+LibSilver provides two AES-256-GCM implementations to suit different needs:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### RustCrypto AES-GCM (`AesGcm`)
+- **Use case**: General-purpose applications
+- **Performance**: Excellent performance across all platforms
+- **Compliance**: Pure Rust implementation
+- **Ecosystem**: Part of the widely-used RustCrypto ecosystem
 
-## Suggestions for a good README
+### AWS-LC-RS AES-GCM (`AwsLcAesGcm`)
+- **Use case**: Applications requiring FIPS 140-2 validation
+- **Performance**: Optimized for AWS infrastructure and x86_64 platforms
+- **Compliance**: FIPS 140-2 Level 1 validated cryptography
+- **Backend**: Uses AWS's libcrypto (AWS-LC) via Rust bindings
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Both implementations:
+- Provide identical APIs for easy switching
+- Support Additional Authenticated Data (AAD)
+- Use the same key and nonce formats
+- Offer the same security guarantees
 
-## Name
-Choose a self-explaining name for your project.
+Choose `AwsLcAesGcm` for FIPS compliance requirements, or `AesGcm` for general use.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## 🧪 Testing
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Run the test suite:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```bash
+cargo test
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Run the examples:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```bash
+# Basic usage example
+cargo run --example basic_usage
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+# AWS-LC-RS AES example
+cargo run --example aws_lc_aes_example
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## 📄 License
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## 🤝 Contributing
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## 🔒 Security
 
-## License
-For open source projects, say how it is licensed.
+If you discover a security vulnerability, please send an email to the maintainers. All security vulnerabilities will be promptly addressed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## 📖 Documentation
+
+For detailed API documentation, run:
+
+```bash
+cargo doc --open
+```
