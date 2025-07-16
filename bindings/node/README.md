@@ -16,13 +16,13 @@ High-performance cryptography library for Node.js, built with Rust and featuring
 ## 📦 Installation
 
 ```bash
-npm install libsilver-nodejs
+yarn add git+ssh://git@gitlab.silvertiger.tech/stealth-vault/stealthvault-libsilver.git#v1.0.2
 ```
 
 ## 🔧 Quick Start
 
 ```javascript
-const { Crypto } = require('libsilver-nodejs');
+const { Crypto } = require('stealthvault-libsilver');
 
 // Symmetric encryption with AES-256-GCM (default)
 const key = Crypto.generateEncryptionKey();
@@ -49,7 +49,7 @@ The `Crypto` class provides a unified interface for all cryptographic operations
 #### AES-256-GCM (Default)
 
 ```javascript
-const { Crypto } = require('libsilver-nodejs');
+const { Crypto } = require('stealthvault-libsilver');
 
 // Generate encryption key
 const key = Crypto.generateEncryptionKey(); // defaults to AES-256-GCM
@@ -213,7 +213,7 @@ const derivedFromString = Crypto.derivePassword('user-password', salt);
 Combine ML-KEM with symmetric encryption for secure communication:
 
 ```javascript
-const { Crypto } = require('libsilver-nodejs');
+const { Crypto } = require('stealthvault-libsilver');
 
 // Alice generates key pair
 const aliceKeypair = Crypto.generateEncapsulationKey("ml-kem-768");
@@ -282,21 +282,21 @@ console.log('Decrypted:', decryptedMessage.toString('utf8'));
 
 ```bash
 # Clone the repository
-git clone https://github.com/DangVTNhan/libsilver.git
-cd libsilver
+git clone git@gitlab.silvertiger.tech:stealth-vault/stealthvault-libsilver.git
+cd stealthvault-libsilver
 
 # Install dependencies
-npm install
+yarn install
 
 # Build the native module
-npm run build
+yarn build
 
 # Run tests
-npm test
+yarn test
 
 # Run examples
-npm run example                    # Basic cryptography examples
-npm run example:post-quantum       # Post-quantum cryptography examples
+yarn example                    # Basic cryptography examples
+yarn example:post-quantum       # Post-quantum cryptography examples
 node examples/aws-lc-aes-example.js  # AWS-LC-RS AES performance demo
 ```
 
@@ -304,18 +304,18 @@ node examples/aws-lc-aes-example.js  # AWS-LC-RS AES performance demo
 
 ```bash
 # Run basic tests
-npm test
+yarn test
 
 # Run post-quantum cryptography tests
-npm run test:post-quantum
+yarn test:post-quantum
 
 # Run all comprehensive tests
-npm run test:all
+yarn test:all
 
 # Run specific test suites
-npm run test:basic          # Basic cryptography tests
-npm run test:integration    # Integration tests
-npm run test:performance    # Performance benchmarks
+yarn test:basic          # Basic cryptography tests
+yarn test:integration    # Integration tests
+yarn test:performance    # Performance benchmarks
 ```
 
 ## 🖥️ Platform Support
@@ -329,7 +329,7 @@ npm run test:performance    # Performance benchmarks
 | Linux | x64 | ⚠️ | CI/CD builds |
 | Linux | ARM64 | ⚠️ | CI/CD builds |
 
-Pre-built binaries are available for all supported platforms via npm.
+Pre-built binaries are available for all supported platforms via GitLab package registry.
 
 ## � 🔧 Advanced Usage: Native Modules
 
@@ -357,6 +357,6 @@ Contributions are welcome! Please read our contributing guidelines and submit pu
 
 ## 🔗 Related Projects
 
-- [LibSilver Core](https://github.com/DangVTNhan/libsilver) - The main Rust library
+- [StealthVault LibSilver Core](https://gitlab.silvertiger.tech/stealth-vault/stealthvault-libsilver) - The main Rust library
 - [LibSilver Swift](https://github.com/DangVTNhan/libsilver-swift) - Swift bindings
 - [LibSilver Kotlin](https://github.com/DangVTNhan/libsilver-kotlin) - Kotlin/Android bindings
