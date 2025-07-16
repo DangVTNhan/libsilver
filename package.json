@@ -79,11 +79,5 @@
   "engines": {
     "node": ">= 14"
   },
-  "private": true,
-  "optionalDependencies": {
-    "libsilver-nodejs-darwin-arm64": "1.0.1",
-    "libsilver-nodejs-darwin-x64": "1.0.1",
-    "libsilver-nodejs-win32-x64-msvc": "1.0.1",
-    "libsilver-nodejs-win32-arm64-msvc": "1.0.1"
-  }
+  "private": true
 }
