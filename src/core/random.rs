@@ -88,6 +88,20 @@ impl SecureKey {
     pub fn into_bytes(mut self) -> Vec<u8> {
         std::mem::take(&mut self.data)
     }
+
+    /// Constant-time comparison of two SecureKeys
+    /// Returns true if keys are equal, false otherwise
+    pub fn constant_time_eq(&self, other: &SecureKey) -> bool {
+        use subtle::ConstantTimeEq;
+        self.data.ct_eq(&other.data).into()
+    }
+
+    /// Constant-time comparison with byte slice
+    /// Returns true if key equals the provided bytes, false otherwise
+    pub fn constant_time_eq_bytes(&self, other: &[u8]) -> bool {
+        use subtle::ConstantTimeEq;
+        self.data.ct_eq(other).into()
+    }
 }
 
 impl Drop for SecureKey {

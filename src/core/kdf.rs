@@ -51,8 +51,18 @@ impl Argon2Kdf {
 
         let mut output = vec![0u8; output_length];
 
-        argon2::Argon2::default()
-            .hash_password_into(password, salt, &mut output)
+        // Use stronger Argon2id parameters for key derivation
+        use argon2::{Params, Algorithm, Version};
+        let params = Params::new(
+            65536, // memory cost (64 MiB) - increased from default 19456
+            3,     // time cost (iterations) - increased from default 2
+            1,     // parallelism
+            Some(output_length)
+        ).map_err(|_| CryptoError::KeyDerivationFailed(ARGON2_DERIVATION_FAILED))?;
+
+        let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
+        
+        argon2.hash_password_into(password, salt, &mut output)
             .map_err(|_| CryptoError::KeyDerivationFailed(ARGON2_DERIVATION_FAILED))?;
 
         Ok(output)
@@ -153,7 +163,7 @@ impl SecureKeyDerivation {
     #[inline]
     pub fn derive_pbkdf2_sha256(password: &[u8], output_length: usize) -> CryptoResult<(Vec<u8>, Vec<u8>)> {
         let salt = SecureRandom::generate_salt()?;
-        let iterations = 100_000; // OWASP recommended minimum
+        let iterations = 600_000; // Updated OWASP 2024 recommendation for PBKDF2-SHA256
         let key = Pbkdf2Kdf::derive_sha256(password, &salt, iterations, output_length)?;
         Ok((key, salt))
     }
