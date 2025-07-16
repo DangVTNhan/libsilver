@@ -2,7 +2,7 @@
 name = "libsilver-nodejs"
 version = "0.1.0"
 edition = "2021"
-authors = ["Nhan Dang <64256004+DangVTNhan@users.noreply.github.com>"]
+authors = ["Nhan Dang (Ryan)"]
 description = "Node.js bindings for LibSilver cryptography library"
 license = "MIT"
 repository = "https://github.com/DangVTNhan/libsilver"

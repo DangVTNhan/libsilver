@@ -1,0 +1,54 @@
+# Rust build artifacts
+target/
+Cargo.lock
+*.pdb
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# Development files
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build scripts and development tools
+build.sh
+build.rs
+scripts/
+benches/
+benchmark/
+
+# Test files
+test/
+tests/
+examples/
+
+# Documentation and development files
+BUILD.md
+qodana.yaml
+
+# Rust source (keep only compiled binaries)
+src/
+bindings/node/src/
+bindings/node/Cargo.toml
+bindings/node/Cargo.lock
+bindings/node/target/
+
+# Keep only essential files for distribution
+!bindings/node/index.js
+!bindings/node/index.d.ts
+!bindings/node/*.node
+!bindings/node/README.md
+!bindings/node/LICENSE
+!bindings/node/package.json
+!README.md
+!LICENSE
+!package.json

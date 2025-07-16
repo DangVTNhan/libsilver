@@ -2,7 +2,7 @@
 name = "libsilver"
 version = "0.1.0"
 edition = "2021"
-authors = ["Nhan Dang <64256004+DangVTNhan@users.noreply.github.com>"]
+authors = ["Nhan Dang (Ryan)"]
 description = "Cross-platform cryptography library built with RustCrypto"
 license = "MIT"
 repository = "https://github.com/DangVTNhan/libsilver"
