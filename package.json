@@ -1,0 +1,89 @@
+{
+  "name": "stealthvault-libsilver",
+  "version": "1.0.1",
+  "description": "Cross-platform cryptography library with post-quantum algorithms - built with RustCrypto",
+  "main": "bindings/node/index.js",
+  "types": "bindings/node/index.d.ts",
+  "keywords": [
+    "cryptography",
+    "post-quantum",
+    "quantum-resistant",
+    "ml-kem",
+    "ml-dsa",
+    "nist",
+    "encryption",
+    "rust",
+    "napi",
+    "cross-platform",
+    "aes",
+    "chacha20",
+    "rsa",
+    "ed25519",
+    "ecdsa",
+    "sha256",
+    "blake3",
+    "argon2",
+    "security",
+    "crypto",
+    "hash",
+    "hmac",
+    "pbkdf2",
+    "hkdf",
+    "digital-signatures",
+    "symmetric-encryption",
+    "asymmetric-encryption",
+    "key-derivation",
+    "secure-random",
+    "key-encapsulation",
+    "quantum-safe"
+  ],
+  "author": "Nhan Dang <64256004+DangVTNhan@users.noreply.github.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.silvertiger.tech/stealth-vault/stealthvault-libsilver.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.silvertiger.tech/stealth-vault/stealthvault-libsilver/-/issues"
+  },
+  "homepage": "https://gitlab.silvertiger.tech/stealth-vault/stealthvault-libsilver#readme",
+  "files": [
+    "bindings/node/index.js",
+    "bindings/node/index.d.ts",
+    "bindings/node/*.node",
+    "bindings/node/README.md",
+    "bindings/node/LICENSE",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "postinstall": "cd bindings/node && npm install --production",
+    "build": "cd bindings/node && npm run build",
+    "build:debug": "cd bindings/node && npm run build:debug",
+    "build:all": "cd bindings/node && npm run build:all",
+    "build:macos": "cd bindings/node && npm run build:macos",
+    "build:windows": "cd bindings/node && npm run build:windows",
+    "test": "cd bindings/node && npm test",
+    "test:basic": "cd bindings/node && npm run test:basic",
+    "test:post-quantum": "cd bindings/node && npm run test:post-quantum",
+    "test:integration": "cd bindings/node && npm run test:integration",
+    "test:performance": "cd bindings/node && npm run test:performance",
+    "test:all": "cd bindings/node && npm run test:all",
+    "test:comprehensive": "cd bindings/node && npm run test:comprehensive",
+    "example": "cd bindings/node && npm run example",
+    "example:default-aes": "cd bindings/node && npm run example:default-aes",
+    "example:post-quantum": "cd bindings/node && npm run example:post-quantum",
+    "example:standalone": "cd bindings/node && npm run example:standalone",
+    "clean": "cd bindings/node && npm run clean"
+  },
+  "engines": {
+    "node": ">= 14"
+  },
+  "private": true,
+  "optionalDependencies": {
+    "libsilver-nodejs-darwin-arm64": "1.0.1",
+    "libsilver-nodejs-darwin-x64": "1.0.1",
+    "libsilver-nodejs-win32-x64-msvc": "1.0.1",
+    "libsilver-nodejs-win32-arm64-msvc": "1.0.1"
+  }
+}
