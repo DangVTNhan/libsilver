@@ -1,20 +1,17 @@
 # LibSilver Node.js Bindings
 
-High-performance cryptography library for Node.js, built with Rust and RustCrypto.
+High-performance cryptography library for Node.js, built with Rust and featuring post-quantum cryptography.
 
 ## 🚀 Features
 
 - **Post-Quantum Cryptography**: ML-KEM (Key Encapsulation) and ML-DSA (Digital Signatures) - NIST standardized algorithms
-- **Symmetric Encryption**: AES-256-GCM (RustCrypto + AWS-LC-RS), ChaCha20-Poly1305
-- **Asymmetric Encryption**: RSA-OAEP (2048+ bit keys)
-- **Digital Signatures**: ECDSA P-256, Ed25519, ML-DSA (Post-Quantum)
-- **Key Encapsulation**: ML-KEM (Post-Quantum Key Exchange)
+- **Symmetric Encryption**: AES-256-GCM (AWS-LC-RS), ChaCha20-Poly1305
 - **Cryptographic Hashing**: SHA-256, SHA-512, BLAKE3, HMAC
-- **Key Derivation Functions**: Argon2, HKDF, PBKDF2
-- **Secure Random Generation**: OS-backed cryptographically secure random number generation
+- **Key Derivation Functions**: Argon2 password hashing
 - **Memory Safety**: Automatic zeroization of sensitive data
 - **Cross-Platform**: Works on Windows (x64/ARM64), macOS (Intel/ARM64), and Linux (via CI/CD)
 - **TypeScript Support**: Full TypeScript definitions included
+- **Simple API**: Unified Crypto class with algorithm selection
 
 ## 📦 Installation
 
@@ -25,297 +22,258 @@ npm install libsilver-nodejs
 ## 🔧 Quick Start
 
 ```javascript
-const {
-  SymmetricCrypto, AwsLcAesCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator,
-  MlKem768Crypto, MlDsa65Crypto  // Post-Quantum Cryptography
-} = require('libsilver-nodejs');
+const { Crypto } = require('libsilver-nodejs');
 
-// Symmetric encryption
-const key = SymmetricCrypto.generateAesKey();
+// Symmetric encryption with AES-256-GCM (default)
+const key = Crypto.generateEncryptionKey();
 const plaintext = Buffer.from('Hello, World!', 'utf8');
-const ciphertext = SymmetricCrypto.encryptAes(plaintext, key);
-const decrypted = SymmetricCrypto.decryptAes(ciphertext, key);
+const ciphertext = Crypto.encrypt(plaintext, key);
+const decrypted = Crypto.decrypt(ciphertext, key);
 
 console.log('Decrypted:', decrypted.toString('utf8')); // "Hello, World!"
 
-// Post-Quantum Key Encapsulation (ML-KEM-768)
-const kemKeypair = MlKem768Crypto.generateKeypair();
-const encapsulation = MlKem768Crypto.encapsulate(kemKeypair.publicKeyBytes);
-const sharedSecret = MlKem768Crypto.decapsulate(encapsulation.ciphertext, kemKeypair.privateKeyBytes);
+// Post-Quantum Key Encapsulation (ML-KEM-1024 default)
+const kemKeypair = Crypto.generateEncapsulationKey();
+const encapsulation = Crypto.encapsulate(kemKeypair.publicKeyBytes);
+const sharedSecret = Crypto.decapsulate(encapsulation.ciphertext, kemKeypair.privateKeyBytes);
 
 console.log('Post-quantum shared secret established!');
 ```
 
 ## 📚 API Documentation
 
-### Post-Quantum Cryptography
-
-LibSilver provides NIST-standardized post-quantum cryptographic algorithms to protect against quantum computer attacks.
-
-#### NIST Security Levels
-
-| Security Level | Classical Security | Quantum Security | Key Sizes | Performance | Recommended Use |
-|----------------|-------------------|------------------|-----------|-------------|-----------------|
-| **Level 1** | AES-128 | Grover's algorithm | Smallest | Fastest | IoT, embedded systems |
-| **Level 3** | AES-192 | Grover's algorithm | Medium | Balanced | **General purpose (recommended)** |
-| **Level 5** | AES-256 | Grover's algorithm | Largest | Slowest | High-security applications |
-
-#### ML-KEM (Key Encapsulation Mechanism)
-
-ML-KEM provides quantum-resistant key exchange. Three security levels are available:
-
-##### ML-KEM-512 (NIST Level 1)
-```javascript
-const { MlKem512Crypto } = require('libsilver-nodejs');
-
-// Generate key pair
-const keypair = MlKem512Crypto.generateKeypair();
-
-// Encapsulate shared secret
-const encapsulation = MlKem512Crypto.encapsulate(keypair.publicKeyBytes);
-
-// Decapsulate shared secret
-const sharedSecret = MlKem512Crypto.decapsulate(
-  encapsulation.ciphertext,
-  keypair.privateKeyBytes
-);
-
-// Get size constants
-const sizes = MlKem512Crypto.getSizes();
-console.log('Public key size:', sizes.publicKeySize);
-console.log('Private key size:', sizes.privateKeySize);
-console.log('Ciphertext size:', sizes.ciphertextSize);
-console.log('Shared secret size:', sizes.sharedSecretSize);
-```
-
-##### ML-KEM-768 (NIST Level 3) - Recommended
-```javascript
-const { MlKem768Crypto } = require('libsilver-nodejs');
-
-// Same API as ML-KEM-512, but with higher security level
-const keypair = MlKem768Crypto.generateKeypair();
-const encapsulation = MlKem768Crypto.encapsulate(keypair.publicKeyBytes);
-const sharedSecret = MlKem768Crypto.decapsulate(
-  encapsulation.ciphertext,
-  keypair.privateKeyBytes
-);
-```
-
-##### ML-KEM-1024 (NIST Level 5)
-```javascript
-const { MlKem1024Crypto } = require('libsilver-nodejs');
-
-// Same API as ML-KEM-512, but with highest security level
-const keypair = MlKem1024Crypto.generateKeypair();
-const encapsulation = MlKem1024Crypto.encapsulate(keypair.publicKeyBytes);
-const sharedSecret = MlKem1024Crypto.decapsulate(
-  encapsulation.ciphertext,
-  keypair.privateKeyBytes
-);
-```
-
-#### ML-DSA (Digital Signature Algorithm)
-
-ML-DSA provides quantum-resistant digital signatures. Three security levels are available:
-
-##### ML-DSA-44 (NIST Level 2)
-```javascript
-const { MlDsa44Crypto } = require('libsilver-nodejs');
-
-// Generate key pair
-const keypair = MlDsa44Crypto.generateKeypair();
-
-// Sign message
-const message = Buffer.from('Hello, post-quantum world!', 'utf8');
-const signature = MlDsa44Crypto.sign(message, keypair.privateKeyBytes);
-
-// Verify signature
-const isValid = MlDsa44Crypto.verify(message, signature, keypair.publicKeyBytes);
-
-// Get size constants
-const sizes = MlDsa44Crypto.getSizes();
-console.log('Public key size:', sizes.publicKeySize);
-console.log('Private key size:', sizes.privateKeySize);
-console.log('Max signature size:', sizes.maxSignatureSize);
-```
-
-##### ML-DSA-65 (NIST Level 3) - Recommended
-```javascript
-const { MlDsa65Crypto } = require('libsilver-nodejs');
-
-// Same API as ML-DSA-44, but with higher security level
-const keypair = MlDsa65Crypto.generateKeypair();
-const signature = MlDsa65Crypto.sign(message, keypair.privateKeyBytes);
-const isValid = MlDsa65Crypto.verify(message, signature, keypair.publicKeyBytes);
-```
-
-##### ML-DSA-87 (NIST Level 5)
-```javascript
-const { MlDsa87Crypto } = require('libsilver-nodejs');
-
-// Same API as ML-DSA-44, but with highest security level
-const keypair = MlDsa87Crypto.generateKeypair();
-const signature = MlDsa87Crypto.sign(message, keypair.privateKeyBytes);
-const isValid = MlDsa87Crypto.verify(message, signature, keypair.publicKeyBytes);
-```
-
-#### Hybrid Encryption Example
-
-Combine ML-KEM with symmetric encryption for secure communication:
-
-```javascript
-const { MlKem768Crypto, SymmetricCrypto } = require('libsilver-nodejs');
-
-// Alice generates key pair
-const aliceKeypair = MlKem768Crypto.generateKeypair();
-
-// Bob wants to send encrypted message to Alice
-const message = Buffer.from('Confidential message', 'utf8');
-
-// Bob encapsulates shared secret using Alice's public key
-const encapsulation = MlKem768Crypto.encapsulate(aliceKeypair.publicKeyBytes);
-
-// Bob encrypts message with shared secret
-const encryptedMessage = SymmetricCrypto.encryptAes(message, encapsulation.sharedSecret);
-
-// Alice decapsulates shared secret
-const aliceSharedSecret = MlKem768Crypto.decapsulate(
-  encapsulation.ciphertext,
-  aliceKeypair.privateKeyBytes
-);
-
-// Alice decrypts message
-const decryptedMessage = SymmetricCrypto.decryptAes(encryptedMessage, aliceSharedSecret);
-```
+The `Crypto` class provides a unified interface for all cryptographic operations with sensible defaults and algorithm selection.
 
 ### Symmetric Encryption
 
-#### AES-256-GCM (Default - AWS-LC-RS)
-```javascript
-const { SymmetricCrypto } = require('libsilver-nodejs');
+#### AES-256-GCM (Default)
 
-// Basic encryption/decryption (uses AWS-LC-RS by default)
-const key = SymmetricCrypto.generateAesKey();
+```javascript
+const { Crypto } = require('libsilver-nodejs');
+
+// Generate encryption key
+const key = Crypto.generateEncryptionKey(); // defaults to AES-256-GCM
+const key2 = Crypto.generateEncryptionKey("aes-256-gcm"); // explicit
+
+// Basic encryption/decryption
 const plaintext = Buffer.from('Hello, World!', 'utf8');
-const ciphertext = SymmetricCrypto.encryptAes(plaintext, key);
-const decrypted = SymmetricCrypto.decryptAes(ciphertext, key);
+const ciphertext = Crypto.encrypt(plaintext, key);
+const decrypted = Crypto.decrypt(ciphertext, key);
 
 // With Additional Authenticated Data (AAD)
-const aad = Buffer.from('user_id:12345,session:abc123', 'utf8');
-const ciphertextWithAad = SymmetricCrypto.encryptAesWithAad(plaintext, key, aad);
-const decryptedWithAad = SymmetricCrypto.decryptAesWithAad(ciphertextWithAad, key, aad);
-
-// With fixed nonce (for testing only)
-const nonce = Buffer.alloc(12, 0x42);
-const deterministicCiphertext = SymmetricCrypto.encryptAesWithNonce(plaintext, key, nonce);
-```
-
-**Default Benefits (AWS-LC-RS):**
-- 🚀 **5-20x faster** than RustCrypto AES-GCM
-- 🔒 **FIPS 140-2 Level 1** validated cryptography
-- ⚡ **Hardware acceleration** (AES-NI support)
-- 🏷️ **AAD support** for additional authentication
-
-#### AES-256-GCM (AWS-LC-RS Explicit)
-```javascript
-const { AwsLcAesCrypto } = require('libsilver-nodejs');
-
-// Same as SymmetricCrypto but explicitly using AWS-LC-RS
-const key = AwsLcAesCrypto.generateKey();
-const ciphertext = AwsLcAesCrypto.encrypt(plaintext, key);
-const decrypted = AwsLcAesCrypto.decrypt(ciphertext, key);
-```
-
-#### AES-256-GCM (RustCrypto Alternative)
-```javascript
-const { RustCryptoAesCrypto } = require('libsilver-nodejs');
-
-// For users who specifically want RustCrypto implementation
-const key = RustCryptoAesCrypto.generateKey();
-const ciphertext = RustCryptoAesCrypto.encrypt(plaintext, key);
-const decrypted = RustCryptoAesCrypto.decrypt(ciphertext, key);
-
-// RustCrypto also supports AAD
-const ciphertextWithAad = RustCryptoAesCrypto.encryptWithAad(plaintext, key, aad);
-const decryptedWithAad = RustCryptoAesCrypto.decryptWithAad(ciphertextWithAad, key, aad);
+const aad = Buffer.from('user_id:12345', 'utf8');
+const ciphertextWithAad = Crypto.encrypt(plaintext, key, aad);
+const decryptedWithAad = Crypto.decrypt(ciphertextWithAad, key, aad);
 ```
 
 #### ChaCha20-Poly1305
+
 ```javascript
-const key = SymmetricCrypto.generateChacha20Key();
-const ciphertext = SymmetricCrypto.encryptChacha20(plaintext, key);
-const decrypted = SymmetricCrypto.decryptChacha20(ciphertext, key);
+// Generate ChaCha20 key
+const chachaKey = Crypto.generateEncryptionKey("chacha20-poly1305");
+
+// Encrypt/decrypt with ChaCha20-Poly1305
+const ciphertext = Crypto.encrypt(plaintext, chachaKey, null, "chacha20-poly1305");
+const decrypted = Crypto.decrypt(ciphertext, chachaKey, null, "chacha20-poly1305");
 ```
 
-### Asymmetric Encryption
+### Post-Quantum Key Encapsulation (ML-KEM)
 
-#### RSA-OAEP
+ML-KEM provides quantum-resistant key exchange with three security levels:
+
+#### ML-KEM-1024 (NIST Level 5) - Default
+
 ```javascript
-const keypair = AsymmetricCrypto.generateRsaKeypair();
-const ciphertext = AsymmetricCrypto.encryptRsa(plaintext, keypair.publicKeyPem);
-const decrypted = AsymmetricCrypto.decryptRsa(ciphertext, keypair.privateKeyPem);
+// Generate key pair (defaults to ML-KEM-1024)
+const keypair = Crypto.generateEncapsulationKey();
+const keypair2 = Crypto.generateEncapsulationKey("ml-kem-1024"); // explicit
+
+// Encapsulate shared secret
+const encapsulation = Crypto.encapsulate(keypair.publicKeyBytes);
+
+// Decapsulate shared secret
+const sharedSecret = Crypto.decapsulate(
+  encapsulation.ciphertext,
+  keypair.privateKeyBytes
+);
 ```
 
-### Digital Signatures
+#### ML-KEM-768 (NIST Level 3) - Recommended for most use cases
 
-#### Ed25519
 ```javascript
-const keypair = AsymmetricCrypto.generateEd25519Keypair();
-const signature = AsymmetricCrypto.signEd25519(message, keypair.signingKeyBytes);
-const isValid = AsymmetricCrypto.verifyEd25519(message, signature, keypair.verifyingKeyBytes);
+// Generate ML-KEM-768 key pair
+const keypair = Crypto.generateEncapsulationKey("ml-kem-768");
+
+// Encapsulate and decapsulate
+const encapsulation = Crypto.encapsulate(keypair.publicKeyBytes, "ml-kem-768");
+const sharedSecret = Crypto.decapsulate(
+  encapsulation.ciphertext,
+  keypair.privateKeyBytes,
+  "ml-kem-768"
+);
 ```
 
-#### ECDSA P-256
+#### ML-KEM-512 (NIST Level 1) - For resource-constrained environments
+
 ```javascript
-const keypair = AsymmetricCrypto.generateEcdsaKeypair();
-const signature = AsymmetricCrypto.signEcdsa(message, keypair.signingKeyBytes);
-const isValid = AsymmetricCrypto.verifyEcdsa(message, signature, keypair.verifyingKeyBytes);
+// Generate ML-KEM-512 key pair
+const keypair = Crypto.generateEncapsulationKey("ml-kem-512");
+
+// Encapsulate and decapsulate
+const encapsulation = Crypto.encapsulate(keypair.publicKeyBytes, "ml-kem-512");
+const sharedSecret = Crypto.decapsulate(
+  encapsulation.ciphertext,
+  keypair.privateKeyBytes,
+  "ml-kem-512"
+);
+```
+
+### Post-Quantum Digital Signatures (ML-DSA)
+
+ML-DSA provides quantum-resistant digital signatures with three security levels:
+
+#### ML-DSA-87 (NIST Level 5) - Default
+
+```javascript
+// Generate signature key pair (defaults to ML-DSA-87)
+const keypair = Crypto.generateSignatureKey();
+const keypair2 = Crypto.generateSignatureKey("ml-dsa-87"); // explicit
+
+// Sign message
+const message = Buffer.from('Hello, post-quantum world!', 'utf8');
+const signature = Crypto.sign(message, keypair.privateKeyBytes);
+
+// Verify signature
+const isValid = Crypto.verify(message, signature, keypair.publicKeyBytes);
+console.log('Signature valid:', isValid);
+```
+
+#### ML-DSA-65 (NIST Level 3) - Recommended for most use cases
+
+```javascript
+// Generate ML-DSA-65 key pair
+const keypair = Crypto.generateSignatureKey("ml-dsa-65");
+
+// Sign and verify
+const signature = Crypto.sign(message, keypair.privateKeyBytes, "ml-dsa-65");
+const isValid = Crypto.verify(message, signature, keypair.publicKeyBytes, "ml-dsa-65");
+```
+
+#### ML-DSA-44 (NIST Level 2) - For smaller signatures
+
+```javascript
+// Generate ML-DSA-44 key pair
+const keypair = Crypto.generateSignatureKey("ml-dsa-44");
+
+// Sign and verify
+const signature = Crypto.sign(message, keypair.privateKeyBytes, "ml-dsa-44");
+const isValid = Crypto.verify(message, signature, keypair.publicKeyBytes, "ml-dsa-44");
 ```
 
 ### Cryptographic Hashing
 
 ```javascript
-// SHA-256
-const hash = HashFunctions.sha256(data);
-const hexHash = HashFunctions.sha256Hex(data);
+// SHA-256 (default)
+const hash = Crypto.hash(data);
+const hashHex = Crypto.hashHex(data); // returns hex string
 
-// BLAKE3
-const blake3Hash = HashFunctions.blake3(data);
-const customLengthHash = HashFunctions.blake3WithLength(data, 64);
+// SHA-512
+const sha512Hash = Crypto.hash(data, "sha-512");
+const sha512Hex = Crypto.hashHex(data, "sha-512");
+
+// BLAKE3 (hex only)
+const blake3Hex = Crypto.hashHex(data, "blake3");
 
 // HMAC
-const mac = HashFunctions.hmacSha256(key, message);
-const isValid = HashFunctions.verifyHmacSha256(key, message, mac);
+const key = Buffer.from('secret-key', 'utf8');
+const message = Buffer.from('message to authenticate', 'utf8');
+const mac = Crypto.hmac(key, message); // defaults to SHA-256
+const mac512 = Crypto.hmac(key, message, "sha-512");
+
+// Verify HMAC
+const isValid = Crypto.verifyHmac(key, message, mac);
+const isValid512 = Crypto.verifyHmac(key, message, mac512, "sha-512");
 ```
 
-### Key Derivation Functions
+### Password Derivation
 
 ```javascript
-// Argon2 (recommended for password hashing)
-const salt = RandomGenerator.generateSalt();
-const key = KeyDerivation.argon2(password, salt, 32);
+// Argon2 password hashing (recommended for passwords)
+const password = Buffer.from('user-password', 'utf8');
+const salt = Buffer.from('random-salt-16-bytes'); // 16 bytes minimum
+const derivedKey = Crypto.derivePassword(password, salt); // 32 bytes default
+const derivedKey64 = Crypto.derivePassword(password, salt, 64); // 64 bytes
 
-// PBKDF2
-const pbkdf2Key = KeyDerivation.pbkdf2Sha256(password, salt, 100000, 32);
-
-// HKDF (for key expansion)
-const hkdfKey = KeyDerivation.hkdfSha256(inputKey, salt, info, 32);
+// String passwords are automatically converted to UTF-8 buffers
+const derivedFromString = Crypto.derivePassword('user-password', salt);
 ```
 
-### Secure Random Generation
+### Hybrid Encryption Example
+
+Combine ML-KEM with symmetric encryption for secure communication:
 
 ```javascript
-const randomBytes = RandomGenerator.generateBytes(32);
-const secureKey = RandomGenerator.generateKey(32);
-const nonce = RandomGenerator.generateNonce(12);
-const salt = RandomGenerator.generateSalt();
+const { Crypto } = require('libsilver-nodejs');
+
+// Alice generates key pair
+const aliceKeypair = Crypto.generateEncapsulationKey("ml-kem-768");
+
+// Bob wants to send encrypted message to Alice
+const message = Buffer.from('Confidential message', 'utf8');
+
+// Bob encapsulates shared secret using Alice's public key
+const encapsulation = Crypto.encapsulate(aliceKeypair.publicKeyBytes, "ml-kem-768");
+
+// Bob encrypts message with shared secret (use first 32 bytes as AES key)
+const aesKey = encapsulation.sharedSecret.slice(0, 32);
+const encryptedMessage = Crypto.encrypt(message, aesKey);
+
+// Alice decapsulates shared secret
+const aliceSharedSecret = Crypto.decapsulate(
+  encapsulation.ciphertext,
+  aliceKeypair.privateKeyBytes,
+  "ml-kem-768"
+);
+
+// Alice decrypts message
+const aliceAesKey = aliceSharedSecret.slice(0, 32);
+const decryptedMessage = Crypto.decrypt(encryptedMessage, aliceAesKey);
+
+console.log('Decrypted:', decryptedMessage.toString('utf8'));
 ```
+
+### Algorithm Support
+
+#### Supported Algorithms
+
+**Symmetric Encryption:**
+- `"aes-256-gcm"` (default) - AES-256-GCM using AWS-LC-RS
+- `"chacha20-poly1305"` - ChaCha20-Poly1305
+
+**Post-Quantum Key Encapsulation (ML-KEM):**
+- `"ml-kem-512"` - NIST Level 1 (smallest keys, fastest)
+- `"ml-kem-768"` - NIST Level 3 (recommended balance)
+- `"ml-kem-1024"` - NIST Level 5 (highest security, default)
+
+**Post-Quantum Digital Signatures (ML-DSA):**
+- `"ml-dsa-44"` - NIST Level 2 (smallest signatures)
+- `"ml-dsa-65"` - NIST Level 3 (recommended balance)
+- `"ml-dsa-87"` - NIST Level 5 (highest security, default)
+
+**Cryptographic Hashing:**
+- `"sha-256"` (default) - SHA-256
+- `"sha-512"` - SHA-512
+- `"blake3"` - BLAKE3 (hex output only)
+
+**Password Derivation:**
+- `"argon2"` (default) - Argon2id with secure defaults
 
 ## 🛡️ Security Features
 
 - **Post-Quantum Security**: NIST-standardized ML-KEM and ML-DSA algorithms protect against quantum computer attacks
 - **Memory Safety**: All sensitive data is automatically zeroized when no longer needed
-- **Secure Defaults**: Uses secure parameters and algorithms by default
+- **Secure Defaults**: Uses secure parameters and algorithms by default (AES-256-GCM, ML-KEM-1024, ML-DSA-87)
+- **High Performance**: AWS-LC-RS provides hardware-accelerated AES-GCM with FIPS 140-2 Level 1 validation
 - **Constant-Time Operations**: Leverages RustCrypto's constant-time implementations
 - **No Unsafe Code**: Pure safe Rust implementation with secure FFI bindings
 - **Audited Dependencies**: Built on well-audited RustCrypto crates and NIST reference implementations
@@ -373,7 +331,23 @@ npm run test:performance    # Performance benchmarks
 
 Pre-built binaries are available for all supported platforms via npm.
 
-## 📄 License
+## � 🔧 Advanced Usage: Native Modules
+
+For advanced users who need direct access to the underlying native implementations, the following modules are also exported:
+
+- **`SymmetricCrypto`** - Direct access to symmetric encryption functions
+- **`AwsLcAesCrypto`** - AWS-LC-RS AES-GCM implementation
+- **`RustCryptoAesCrypto`** - RustCrypto AES-GCM implementation
+- **`AsymmetricCrypto`** - RSA, ECDSA, and Ed25519 operations
+- **`HashFunctions`** - SHA-256, SHA-512, BLAKE3, and HMAC functions
+- **`KeyDerivation`** - Argon2, PBKDF2, and HKDF functions
+- **`RandomGenerator`** - Cryptographically secure random number generation
+- **`MlKem512Crypto`**, **`MlKem768Crypto`**, **`MlKem1024Crypto`** - ML-KEM implementations
+- **`MlDsa44Crypto`**, **`MlDsa65Crypto`**, **`MlDsa87Crypto`** - ML-DSA implementations
+
+These modules provide the same functionality as the `Crypto` class but with direct access to specific implementations. Refer to the TypeScript definitions for detailed API documentation.
+
+## �📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
