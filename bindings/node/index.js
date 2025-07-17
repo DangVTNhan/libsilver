@@ -166,4 +166,9 @@ class Crypto {
   }
 }
 
+// Export for CommonJS
 module.exports = { ...native, Crypto };
+
+// Export for ES modules compatibility
+module.exports.default = { ...native, Crypto };
+module.exports.Crypto = Crypto;

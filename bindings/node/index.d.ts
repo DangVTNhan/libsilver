@@ -1,50 +1,85 @@
+/// <reference types="node" />
+
 export * from "./native";
+import {
+  MlKem512KeyPairJs,
+  MlKem768KeyPairJs,
+  MlKem1024KeyPairJs,
+  MlDsa44KeyPairJs,
+  MlDsa65KeyPairJs,
+  MlDsa87KeyPairJs,
+  MlKem512EncapsulationJs,
+  MlKem768EncapsulationJs,
+  MlKem1024EncapsulationJs,
+} from "./native";
 
 export declare class Crypto {
-  encrypt(
+  static encrypt(
     plaintext: Buffer,
     key: Buffer,
     aad?: Buffer | null,
-    algorithm?: string | null
+    algorithm?: string
   ): Buffer;
-  decrypt(
+
+  static decrypt(
     ciphertext: Buffer,
     key: Buffer,
     aad?: Buffer | null,
-    algorithm?: string | null
+    algorithm?: string
   ): Buffer;
-  generateEncryptionKey(algorithm?: string | null): Buffer;
-  generateEncapsulationKey(algorithm?: string | null): Buffer;
-  encapsulate(publicKey: Buffer, algorithm?: string | null): Buffer;
-  decapsulate(
+
+  static generateEncryptionKey(algorithm?: string): Buffer;
+
+  static generateEncapsulationKey(
+    algorithm?: string
+  ): MlKem512KeyPairJs | MlKem768KeyPairJs | MlKem1024KeyPairJs;
+
+  static encapsulate(
+    publicKey: Buffer,
+    algorithm?: string
+  ):
+    | MlKem512EncapsulationJs
+    | MlKem768EncapsulationJs
+    | MlKem1024EncapsulationJs;
+
+  static decapsulate(
     ciphertext: Buffer,
     privateKey: Buffer,
-    algorithm?: string | null
+    algorithm?: string
   ): Buffer;
-  generateSignatureKey(algorithm?: string | null): Buffer;
-  sign(message: Buffer, privateKey: Buffer, algorithm?: string | null): Buffer;
-  verify(
+
+  static generateSignatureKey(
+    algorithm?: string
+  ): MlDsa44KeyPairJs | MlDsa65KeyPairJs | MlDsa87KeyPairJs;
+
+  static sign(message: Buffer, privateKey: Buffer, algorithm?: string): Buffer;
+
+  static verify(
     message: Buffer,
     signature: Buffer,
     publicKey: Buffer,
-    algorithm?: string | null
+    algorithm?: string
   ): boolean;
 
-  hash(data: Buffer, algorithm?: string | null): Buffer;
-  hashHex(data: Buffer, algorithm?: string | null): string;
+  static hash(data: Buffer, algorithm?: string): Buffer;
+  static hashHex(data: Buffer, algorithm?: string): string;
 
-  hmac(key: Buffer, message: Buffer, algorithm?: string | null): Buffer;
-  verifyHmac(
+  static hmac(key: Buffer, message: Buffer, algorithm?: string): Buffer;
+  static verifyHmac(
     key: Buffer,
     message: Buffer,
     expectedMac: Buffer,
-    algorithm?: string | null
+    algorithm?: string
   ): boolean;
 
-  derivePassword(
-    password: string,
+  static derivePassword(
+    password: string | Buffer,
     salt: Buffer,
-    digestLength?: number | null,
-    algorithm?: string | null
+    digestLength?: number,
+    algorithm?: string
   ): Buffer;
 }
+
+// Support default export for ES modules
+declare const _default: typeof import("./native") & { Crypto: typeof Crypto };
+export default _default;
