@@ -4,12 +4,13 @@
  * LibSilver Implementation Wrappers
  */
 
-import {
-  SymmetricCrypto, AwsLcAesCrypto, RustCryptoAesCrypto, AsymmetricCrypto, 
+import pkg from 'libsilver-nodejs';
+const {
+  SymmetricCrypto, AwsLcAesCrypto, RustCryptoAesCrypto, AsymmetricCrypto,
   HashFunctions, KeyDerivation, RandomGenerator,
   MlKem512Crypto, MlKem768Crypto, MlKem1024Crypto,
   MlDsa44Crypto, MlDsa65Crypto, MlDsa87Crypto
-} from 'libsilver-nodejs';
+} = pkg;
 
 export class LibSilverSymmetricCrypto {
   static encryptAES(plaintext, key) {

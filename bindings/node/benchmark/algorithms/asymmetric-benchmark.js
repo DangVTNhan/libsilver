@@ -81,7 +81,7 @@ export class AsymmetricBenchmark {
           );
           results[implName].encrypt = encryptResult;
         }
-        
+
         // Benchmark decryption
         if (algConfig.operations.includes('decrypt')) {
           const ciphertext = this.encrypt(impl, algId, plaintext, keypair);
@@ -90,6 +90,25 @@ export class AsymmetricBenchmark {
             () => this.decrypt(impl, algId, ciphertext, keypair)
           );
           results[implName].decrypt = decryptResult;
+        }
+
+        // Benchmark signing
+        if (algConfig.operations.includes('sign')) {
+          const signResult = await this.benchmarkOperation(
+            `${implName} ${algConfig.name} Sign (${dataSize.name})`,
+            () => this.sign(impl, algId, plaintext, keypair)
+          );
+          results[implName].sign = signResult;
+        }
+
+        // Benchmark verification
+        if (algConfig.operations.includes('verify')) {
+          const signature = this.sign(impl, algId, plaintext, keypair);
+          const verifyResult = await this.benchmarkOperation(
+            `${implName} ${algConfig.name} Verify (${dataSize.name})`,
+            () => this.verify(impl, algId, plaintext, signature, keypair)
+          );
+          results[implName].verify = verifyResult;
         }
         
       } catch (error) {
@@ -105,6 +124,8 @@ export class AsymmetricBenchmark {
     switch (algId) {
       case 'rsa-oaep':
         return impl.generateRSAKeypair();
+      case 'ed25519':
+        return impl.generateEd25519Keypair();
       default:
         throw new Error(`Unknown algorithm: ${algId}`);
     }
@@ -123,6 +144,24 @@ export class AsymmetricBenchmark {
     switch (algId) {
       case 'rsa-oaep':
         return impl.decryptRSA(ciphertext, keypair.privateKeyPem);
+      default:
+        throw new Error(`Unknown algorithm: ${algId}`);
+    }
+  }
+
+  sign(impl, algId, message, keypair) {
+    switch (algId) {
+      case 'ed25519':
+        return impl.signEd25519(message, keypair.signingKeyBytes);
+      default:
+        throw new Error(`Unknown algorithm: ${algId}`);
+    }
+  }
+
+  verify(impl, algId, message, signature, keypair) {
+    switch (algId) {
+      case 'ed25519':
+        return impl.verifyEd25519(message, signature, keypair.verifyingKeyBytes);
       default:
         throw new Error(`Unknown algorithm: ${algId}`);
     }
@@ -176,39 +215,66 @@ export class AsymmetricBenchmark {
         
         try {
           const keypair = this.generateKeypair(impl, algId);
-          
+          const results = {};
+
           // Measure key generation memory
-          const keygenMemory = this.measureOperationMemory(
-            `${implName} ${algConfig.name} KeyGen`,
-            () => this.generateKeypair(impl, algId),
-            Math.min(iterations, 100) // Fewer iterations for expensive operations
-          );
-          
+          if (algConfig.operations.includes('keygen')) {
+            const keygenMemory = this.measureOperationMemory(
+              `${implName} ${algConfig.name} KeyGen`,
+              () => this.generateKeypair(impl, algId),
+              Math.min(iterations, 100) // Fewer iterations for expensive operations
+            );
+            results.keygen = keygenMemory;
+          }
+
           // Measure encryption memory
-          const encryptMemory = this.measureOperationMemory(
-            `${implName} ${algConfig.name} Encrypt`,
-            () => this.encrypt(impl, algId, plaintext, keypair),
-            iterations
-          );
-          
+          if (algConfig.operations.includes('encrypt')) {
+            const encryptMemory = this.measureOperationMemory(
+              `${implName} ${algConfig.name} Encrypt`,
+              () => this.encrypt(impl, algId, plaintext, keypair),
+              iterations
+            );
+            results.encrypt = encryptMemory;
+          }
+
           // Measure decryption memory
-          const ciphertext = this.encrypt(impl, algId, plaintext, keypair);
-          const decryptMemory = this.measureOperationMemory(
-            `${implName} ${algConfig.name} Decrypt`,
-            () => this.decrypt(impl, algId, ciphertext, keypair),
-            iterations
-          );
-          
-          memoryResults[algId][implName] = {
-            keygen: keygenMemory,
-            encrypt: encryptMemory,
-            decrypt: decryptMemory
-          };
-          
+          if (algConfig.operations.includes('decrypt')) {
+            const ciphertext = this.encrypt(impl, algId, plaintext, keypair);
+            const decryptMemory = this.measureOperationMemory(
+              `${implName} ${algConfig.name} Decrypt`,
+              () => this.decrypt(impl, algId, ciphertext, keypair),
+              iterations
+            );
+            results.decrypt = decryptMemory;
+          }
+
+          // Measure signing memory
+          if (algConfig.operations.includes('sign')) {
+            const signMemory = this.measureOperationMemory(
+              `${implName} ${algConfig.name} Sign`,
+              () => this.sign(impl, algId, plaintext, keypair),
+              iterations
+            );
+            results.sign = signMemory;
+          }
+
+          // Measure verification memory
+          if (algConfig.operations.includes('verify')) {
+            const signature = this.sign(impl, algId, plaintext, keypair);
+            const verifyMemory = this.measureOperationMemory(
+              `${implName} ${algConfig.name} Verify`,
+              () => this.verify(impl, algId, plaintext, signature, keypair),
+              iterations
+            );
+            results.verify = verifyMemory;
+          }
+
+          memoryResults[algId][implName] = results;
+
           console.log(`  ${implName}:`);
-          console.log(`    KeyGen: ${this.formatBytes(keygenMemory.avgMemoryPerOp)} per op`);
-          console.log(`    Encrypt: ${this.formatBytes(encryptMemory.avgMemoryPerOp)} per op`);
-          console.log(`    Decrypt: ${this.formatBytes(decryptMemory.avgMemoryPerOp)} per op`);
+          Object.entries(results).forEach(([operation, memory]) => {
+            console.log(`    ${operation}: ${this.formatBytes(memory.avgMemoryPerOp)} per op`);
+          });
           
         } catch (error) {
           console.log(`  ❌ ${implName}: ${error.message}`);

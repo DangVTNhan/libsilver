@@ -1,6 +1,6 @@
-use crate::error::{CryptoError, CryptoResult, ZERO_LENGTH_INPUT, RANDOM_GENERATION_FAILED};
-use rand::RngCore;
+use crate::error::{CryptoError, CryptoResult, RANDOM_GENERATION_FAILED, ZERO_LENGTH_INPUT};
 use rand::rngs::OsRng;
+use rand::RngCore;
 use zeroize::Zeroize;
 
 /// Secure random number generator
@@ -14,7 +14,8 @@ impl SecureRandom {
         }
 
         let mut bytes = vec![0u8; length];
-        OsRng.try_fill_bytes(&mut bytes)
+        OsRng
+            .try_fill_bytes(&mut bytes)
             .map_err(|_| CryptoError::RandomGenerationFailed(RANDOM_GENERATION_FAILED))?;
 
         Ok(bytes)
