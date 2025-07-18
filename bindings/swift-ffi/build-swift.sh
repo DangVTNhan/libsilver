@@ -13,7 +13,8 @@ cd "$(dirname "$0")"
 echo "🧹 Cleaning previous builds..."
 rm -rf target/
 rm -rf bindings/
-rm -rf ios/LibSilver.xcframework
+rm -rf LibSilver.xcframework
+rm -rf libs/
 
 # Build the dylib for binding generation
 echo "📦 Building dylib for binding generation..."
