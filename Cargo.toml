@@ -47,6 +47,15 @@ napi-derive = { version = "2.0", optional = true }
 uniffi = { version = "0.25", optional = true }
 libcrux-ml-kem = "0.0.3"
 fips204 = "0.4"
+subtle = "2.6.1"
+
+# Platform-specific optimizations
+[target.'cfg(not(target_os = "windows"))'.dependencies]
+sha2 = { version = "0.10", features = ["asm"] }
+
+# ARM-specific optimizations (NEON SIMD)
+[target.'cfg(target_arch = "aarch64")'.dependencies]
+blake3 = { version = "1.5", features = ["neon"] }
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
