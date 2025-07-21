@@ -1,0 +1,29 @@
+[package]
+name = "libsilver-swift"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nhan Dang (Ryan)"]
+description = "Swift bindings for LibSilver cryptography library using UniFFI"
+license = "MIT"
+repository = "https://github.com/DangVTNhan/libsilver"
+keywords = ["cryptography", "swift", "uniffi", "encryption", "rust"]
+categories = ["cryptography", "api-bindings"]
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+name = "libsilver_swift"
+
+[dependencies]
+libsilver = { path = "../.." }
+uniffi = { version = "0.25", features = ["cli"] }
+thiserror = "1.0"
+
+[build-dependencies]
+uniffi = { version = "0.25", features = ["build"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+opt-level = 3

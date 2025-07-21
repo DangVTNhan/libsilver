@@ -8,14 +8,26 @@ This directory contains a comprehensive test suite for the LibSilver Node.js bin
 - **Basic Tests**: Core functionality for all cryptographic primitives
 - **Advanced Tests**: Edge cases, different data sizes, key uniqueness
 - **Post-Quantum Tests**: All ML-KEM and ML-DSA variants
-- **Coverage**: 
+- **Coverage**:
   - Symmetric encryption (AES-256-GCM, ChaCha20-Poly1305)
+  - Additional symmetric crypto (encrypt_with_aad_and_nonce)
   - Asymmetric cryptography (RSA, Ed25519, ECDSA)
   - Hash functions (SHA-256, SHA-512, BLAKE3, HMAC)
   - Key derivation (Argon2, PBKDF2, HKDF)
   - Random generation
   - ML-KEM-512/768/1024 (key encapsulation)
   - ML-DSA-44/65/87 (digital signatures)
+
+### 1.1. `encrypt-with-aad-and-nonce-test.js` - Advanced AES-GCM Tests
+- **encrypt_with_aad_and_nonce Function**: Tests the new function across all implementations
+- **Cross-Implementation Compatibility**: Verifies RustCrypto and AWS-LC-RS produce identical results
+- **Deterministic Encryption**: Tests that same inputs produce same outputs
+- **AAD Authentication**: Verifies additional authenticated data is properly validated
+- **Error Handling**: Tests invalid key lengths, nonce lengths, and wrong AAD
+- **Coverage**:
+  - SymmetricCrypto.encryptAesWithAadAndNonce (default AWS-LC-RS)
+  - AwsLcAesCrypto.encryptWithAadAndNonce (AWS-LC-RS direct)
+  - RustCryptoAesCrypto.encryptWithAadAndNonce (RustCrypto direct)
 
 ### 2. `post-quantum-test.js` - Dedicated Post-Quantum Tests
 - **ML-KEM Tests**: All three security levels (512, 768, 1024)

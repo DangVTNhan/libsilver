@@ -1,10 +1,10 @@
 # LibSilver Swift Bindings
 
-Swift bindings for the LibSilver cryptography library.
+LibSilver Swift bindings provide a comprehensive cryptography library for iOS, macOS, watchOS, and tvOS applications. Built on top of the high-performance LibSilver Rust library using UniFFI, it offers both classical and post-quantum cryptographic operations with a Swift-native API.
 
-## 🚧 Status
+## ✅ Status
 
-**Coming Soon** - Swift bindings are currently in development.
+**Ready for Use** - Swift bindings are now available with full UniFFI integration!
 
 ## 🎯 Planned Features
 

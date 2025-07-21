@@ -4,6 +4,9 @@ const {
   MlDsa44Crypto, MlDsa65Crypto, MlDsa87Crypto
 } = require('../index.js');
 
+// Import additional test modules
+const { testEncryptWithAadAndNonce } = require('./encrypt-with-aad-and-nonce-test.js');
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message || 'Assertion failed');
@@ -540,6 +543,10 @@ function runAllTests() {
     testAsymmetricCryptoAdvanced();
     console.log();
 
+    // Additional symmetric crypto tests
+    testEncryptWithAadAndNonce();
+    console.log();
+
     // Post-quantum cryptography tests
     testPostQuantumCrypto();
     console.log();
@@ -555,6 +562,7 @@ function runAllTests() {
     console.log('🎉 All comprehensive tests passed!');
     console.log('\n📊 Test Summary:');
     console.log('   ✓ Classical Cryptography (Basic & Advanced)');
+    console.log('   ✓ Additional Symmetric Crypto (encrypt_with_aad_and_nonce)');
     console.log('   ✓ Post-Quantum Cryptography (ML-KEM & ML-DSA)');
     console.log('   ✓ Integration Scenarios');
     console.log('   ✓ Performance & Stress Tests');
@@ -581,6 +589,9 @@ module.exports = {
   testSymmetricCryptoAdvanced,
   testAsymmetricCryptoAdvanced,
   testPostQuantumCrypto,
+
+  // Additional symmetric tests
+  testEncryptWithAadAndNonce,
 
   // Integration and performance tests
   testIntegration,

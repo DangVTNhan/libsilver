@@ -21,6 +21,16 @@ export declare class Crypto {
     algorithm?: string
   ): Buffer;
 
+  static encryptWithNonce(
+    plaintext: Buffer,
+    key: Buffer,
+    nonce: Buffer,
+    aad?: Buffer | null,
+    algorithm?: string
+  ): Buffer;
+
+  static getNonceFromCiphertext(ciphertext: Buffer): Buffer;
+
   static decrypt(
     ciphertext: Buffer,
     key: Buffer,

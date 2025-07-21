@@ -7,13 +7,13 @@ let package = Package(
         .iOS(.v13),
         .macOS(.v10_15),
         .watchOS(.v6),
-        .tvOS(.v13)
+        .tvOS(.v13),
     ],
     products: [
         .library(
             name: "LibSilver",
             targets: ["LibSilver"]
-        ),
+        )
     ],
     dependencies: [
         // Add any Swift dependencies here
@@ -21,17 +21,17 @@ let package = Package(
     targets: [
         .target(
             name: "LibSilver",
-            dependencies: ["LibSilverRust"],
+            dependencies: ["LibSilverFFI", "LibSilverRust"],
             path: "Sources/LibSilver"
         ),
-        .systemLibrary(
+        .target(
+            name: "LibSilverFFI",
+            dependencies: ["LibSilverRust"],
+            path: "Sources/LibSilverFFI"
+        ),
+        .binaryTarget(
             name: "LibSilverRust",
-            path: "Sources/LibSilverRust",
-            pkgConfig: "libsilver",
-            providers: [
-                .apt(["libsilver-dev"]),
-                .brew(["libsilver"])
-            ]
+            path: "LibSilver.xcframework"
         ),
         .testTarget(
             name: "LibSilverTests",

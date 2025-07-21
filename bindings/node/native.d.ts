@@ -90,6 +90,8 @@ export declare class SymmetricCrypto {
   static decryptAesWithAad(ciphertext: Buffer, key: Buffer, aad: Buffer): Buffer
   /** Encrypt data with provided nonce using AES-256-GCM (uses AWS-LC-RS by default, for testing purposes) */
   static encryptAesWithNonce(plaintext: Buffer, key: Buffer, nonce: Buffer): Buffer
+  /** Encrypt data with Additional Authenticated Data (AAD) and provided nonce using AES-256-GCM (uses AWS-LC-RS by default) */
+  static encryptAesWithAadAndNonce(plaintext: Buffer, key: Buffer, aad: Buffer, nonce: Buffer): Buffer
   /** Generate ChaCha20-Poly1305 key */
   static generateChacha20Key(): Buffer
   /** Encrypt data using ChaCha20-Poly1305 */
@@ -111,6 +113,8 @@ export declare class AwsLcAesCrypto {
   static decryptWithAad(ciphertext: Buffer, key: Buffer, aad: Buffer): Buffer
   /** Encrypt data with provided nonce using AWS-LC-RS AES-256-GCM (for testing purposes) */
   static encryptWithNonce(plaintext: Buffer, key: Buffer, nonce: Buffer): Buffer
+  /** Encrypt data with Additional Authenticated Data (AAD) and provided nonce using AWS-LC-RS AES-256-GCM */
+  static encryptWithAadAndNonce(plaintext: Buffer, key: Buffer, aad: Buffer, nonce: Buffer): Buffer
 }
 /** RustCrypto AES Symmetric Encryption Module */
 export declare class RustCryptoAesCrypto {
@@ -126,6 +130,8 @@ export declare class RustCryptoAesCrypto {
   static decryptWithAad(ciphertext: Buffer, key: Buffer, aad: Buffer): Buffer
   /** Encrypt data with provided nonce using RustCrypto AES-256-GCM (for testing purposes) */
   static encryptWithNonce(plaintext: Buffer, key: Buffer, nonce: Buffer): Buffer
+  /** Encrypt data with Additional Authenticated Data (AAD) and provided nonce using RustCrypto AES-256-GCM */
+  static encryptWithAadAndNonce(plaintext: Buffer, key: Buffer, aad: Buffer, nonce: Buffer): Buffer
 }
 /** Asymmetric Encryption Module */
 export declare class AsymmetricCrypto {
