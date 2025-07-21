@@ -9,6 +9,7 @@ class Crypto {
       throw new Error(`Unsupported algorithm: ${algorithm}`);
     }
   }
+
   static encrypt(plaintext, key, aad = null, algorithm = "aes-256-gcm") {
     if (algorithm === "aes-256-gcm" && !aad) {
       return native.SymmetricCrypto.encryptAes(plaintext, key);
@@ -20,9 +21,26 @@ class Crypto {
       throw new Error(`Unsupported algorithm: ${algorithm}`);
     }
   }
+
+  static encryptWithNonce(plaintext, key, nonce, aad = null , algorithm = "aes-256-gcm") {
+    if (algorithm === "aes-256-gcm" && !aad) {
+      return native.SymmetricCrypto.encryptAesWithNonce(plaintext, key, nonce);
+    } else if (algorithm === "aes-256-gcm" && aad) {
+      return native.SymmetricCrypto.encryptAesWithAadAndNonce(plaintext, key, nonce, aad);
+    } else {
+      throw new Error(`Unsupported algorithm: ${algorithm}`);
+    }
+  }
+
+  static getNonceFromCiphertext(ciphertext) {
+    return ciphertext.slice(0, 12);
+  }
+
   static decrypt(ciphertext, key, aad = null, algorithm = "aes-256-gcm") {
-    if (algorithm === "aes-256-gcm") {
-      return native.SymmetricCrypto.decryptAes(ciphertext, key, aad);
+    if (algorithm === "aes-256-gcm" && !aad) {
+      return native.SymmetricCrypto.decryptAes(ciphertext, key);
+    } else if (algorithm === "aes-256-gcm" && aad) {
+      return native.SymmetricCrypto.decryptAesWithAad(ciphertext, key, aad);
     } else if (algorithm === "chacha20-poly1305") {
       return native.SymmetricCrypto.decryptChacha20(ciphertext, key);
     } else {

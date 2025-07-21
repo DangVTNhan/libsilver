@@ -58,11 +58,19 @@ const key2 = Crypto.generateEncryptionKey("aes-256-gcm"); // explicit
 // Basic encryption/decryption
 const plaintext = Buffer.from('Hello, World!', 'utf8');
 const ciphertext = Crypto.encrypt(plaintext, key);
+// If you want to log the nonce (the first 12 bytes of the ciphertext)
+const nonce = Crypto.getNonceFromCiphertext(ciphertext);
+console.log('Nonce:', nonce.toString('hex'));
 const decrypted = Crypto.decrypt(ciphertext, key);
 
 // With Additional Authenticated Data (AAD)
 const aad = Buffer.from('user_id:12345', 'utf8');
 const ciphertextWithAad = Crypto.encrypt(plaintext, key, aad);
+
+// If you want to log the nonce (the first 12 bytes of the ciphertext)
+const nonce = Crypto.getNonceFromCiphertext(ciphertextWithAad);
+console.log('Nonce:', nonce.toString('hex'));
+
 const decryptedWithAad = Crypto.decrypt(ciphertextWithAad, key, aad);
 ```
 

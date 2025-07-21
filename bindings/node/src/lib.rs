@@ -76,6 +76,18 @@ impl SymmetricCrypto {
         Ok(Buffer::from(ciphertext))
     }
 
+    /// Encrypt data with Additional Authenticated Data (AAD) and provided nonce using AES-256-GCM (uses AWS-LC-RS by default)
+    #[napi]
+    pub fn encrypt_aes_with_aad_and_nonce(
+        plaintext: Buffer,
+        key: Buffer,
+        aad: Buffer,
+        nonce: Buffer,
+    ) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(AesGcm::encrypt_with_aad_and_nonce(&plaintext, &key, &aad, &nonce))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
     /// Generate ChaCha20-Poly1305 key
     #[napi]
     pub fn generate_chacha20_key() -> napi::Result<Buffer> {
@@ -150,6 +162,18 @@ impl AwsLcAesCrypto {
             to_napi_result!(AwsLcAesGcm::encrypt_with_nonce(&plaintext, &key, &nonce))?;
         Ok(Buffer::from(ciphertext))
     }
+
+    /// Encrypt data with Additional Authenticated Data (AAD) and provided nonce using AWS-LC-RS AES-256-GCM
+    #[napi]
+    pub fn encrypt_with_aad_and_nonce(
+        plaintext: Buffer,
+        key: Buffer,
+        aad: Buffer,
+        nonce: Buffer,
+    ) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(AwsLcAesGcm::encrypt_with_aad_and_nonce(&plaintext, &key, &aad, &nonce))?;
+        Ok(Buffer::from(ciphertext))
+    }
 }
 
 /// RustCrypto AES Symmetric Encryption Module
@@ -205,6 +229,18 @@ impl RustCryptoAesCrypto {
         let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt_with_nonce(
             &plaintext, &key, &nonce
         ))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
+    /// Encrypt data with Additional Authenticated Data (AAD) and provided nonce using RustCrypto AES-256-GCM
+    #[napi]
+    pub fn encrypt_with_aad_and_nonce(
+        plaintext: Buffer,
+        key: Buffer,
+        aad: Buffer,
+        nonce: Buffer,
+    ) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt_with_aad_and_nonce(&plaintext, &key, &aad, &nonce))?;
         Ok(Buffer::from(ciphertext))
     }
 }
