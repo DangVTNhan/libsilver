@@ -1,4 +1,5 @@
 pub mod symmetric;
+pub mod stream_symmetric;
 pub mod asymmetric;
 pub mod post_quantum;
 pub mod hash;
@@ -7,6 +8,7 @@ pub mod random;
 
 // Re-export commonly used types and functions
 pub use symmetric::{AesGcm, AwsLcAesGcm, RustCryptoAesGcm, ChaCha20Poly1305Cipher};
+pub use stream_symmetric::StreamCipher;
 pub use asymmetric::{RsaCrypto, EcdsaCrypto, Ed25519Crypto, RsaKeyPair, EcdsaKeyPair, Ed25519KeyPair};
 pub use post_quantum::{
     // ML-KEM structs and key pairs

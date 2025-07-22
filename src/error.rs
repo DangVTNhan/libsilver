@@ -48,6 +48,9 @@ pub const INVALID_ML_KEM_PRIVATE_KEY: &str = "Invalid ML-KEM private key";
 pub const INVALID_ML_KEM_PUBLIC_KEY: &str = "Invalid ML-KEM public key";
 pub const INVALID_ML_KEM_CIPHERTEXT: &str = "Invalid ML-KEM ciphertext";
 pub const INVALID_ML_DSA_PRIVATE_KEY: &str = "Invalid ML-DSA private key";
+pub const STREAM_CIPHER_INIT_FAILED: &str = "Stream cipher initialization failed";
+pub const NONCE_OVERFLOW: &str = "Nonce counter overflow - reset required";
+pub const STREAM_CIPHER_POISONED: &str = "Stream cipher mutex poisoned";
 pub const INVALID_ML_DSA_PUBLIC_KEY: &str = "Invalid ML-DSA public key";
 pub const INVALID_ML_DSA_SIGNATURE: &str = "Invalid ML-DSA signature";
 

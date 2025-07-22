@@ -310,11 +310,12 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { SymmetricCrypto, AwsLcAesCrypto, RustCryptoAesCrypto, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator, MlKem512Crypto, MlKem768Crypto, MlKem1024Crypto, MlDsa44Crypto, MlDsa65Crypto, MlDsa87Crypto } = nativeBinding
+const { SymmetricCrypto, AwsLcAesCrypto, RustCryptoAesCrypto, StreamCipherJs, AsymmetricCrypto, HashFunctions, KeyDerivation, RandomGenerator, MlKem512Crypto, MlKem768Crypto, MlKem1024Crypto, MlDsa44Crypto, MlDsa65Crypto, MlDsa87Crypto } = nativeBinding
 
 module.exports.SymmetricCrypto = SymmetricCrypto
 module.exports.AwsLcAesCrypto = AwsLcAesCrypto
 module.exports.RustCryptoAesCrypto = RustCryptoAesCrypto
+module.exports.StreamCipherJs = StreamCipherJs
 module.exports.AsymmetricCrypto = AsymmetricCrypto
 module.exports.HashFunctions = HashFunctions
 module.exports.KeyDerivation = KeyDerivation

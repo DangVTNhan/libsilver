@@ -133,6 +133,68 @@ export declare class RustCryptoAesCrypto {
   /** Encrypt data with Additional Authenticated Data (AAD) and provided nonce using RustCrypto AES-256-GCM */
   static encryptWithAadAndNonce(plaintext: Buffer, key: Buffer, aad: Buffer, nonce: Buffer): Buffer
 }
+/** Stream Cipher Module - Stateful AES-256-GCM with automatic nonce management */
+export declare class StreamCipherJs {
+  /**
+   * Create a new StreamCipher instance with the provided encryption key
+   *
+   * # Arguments
+   * * `key` - AES-256 key (must be exactly 32 bytes)
+   *
+   * # Returns
+   * * StreamCipherJs instance for stateful encryption/decryption
+   */
+  constructor(key: Buffer)
+  /**
+   * Encrypt a chunk of data using the stream cipher
+   *
+   * This method automatically generates a unique nonce for each operation
+   * by incrementing an internal counter. The returned ciphertext includes
+   * the nonce prefix for decryption.
+   *
+   * # Arguments
+   * * `plaintext` - Data to encrypt
+   *
+   * # Returns
+   * * Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   *
+   * # Thread Safety
+   * This method is thread-safe and can be called concurrently.
+   */
+  encryptChunk(plaintext: Buffer): Buffer
+  /**
+   * Decrypt a chunk of data using the stream cipher
+   *
+   * The ciphertext must include the nonce prefix as returned by encrypt_chunk.
+   *
+   * # Arguments
+   * * `ciphertext` - Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   *
+   * # Returns
+   * * Decrypted plaintext data
+   *
+   * # Thread Safety
+   * This method is thread-safe and can be called concurrently.
+   */
+  decryptChunk(ciphertext: Buffer): Buffer
+  /**
+   * Reset the stream cipher state
+   *
+   * This generates a new base nonce and resets the nonce counter to 0.
+   * Use this method when the nonce counter approaches overflow or when
+   * starting a new encryption session.
+   */
+  reset(): void
+  /**
+   * Get the current nonce counter value
+   *
+   * This can be used to monitor nonce usage and determine when to reset.
+   * Consider resetting when the counter approaches the maximum value.
+   */
+  getNonceCounter(): number
+  /** Generate a new AES-256 key for stream cipher use */
+  static generateKey(): Buffer
+}
 /** Asymmetric Encryption Module */
 export declare class AsymmetricCrypto {
   /** Generate RSA-2048 key pair */

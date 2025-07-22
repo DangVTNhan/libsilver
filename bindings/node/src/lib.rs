@@ -1,4 +1,5 @@
 use libsilver::core::symmetric::RustCryptoAesGcm;
+use libsilver::core::stream_symmetric::StreamCipher;
 use libsilver::core::*;
 use libsilver::error::CryptoError;
 use napi::bindgen_prelude::*;
@@ -242,6 +243,94 @@ impl RustCryptoAesCrypto {
     ) -> napi::Result<Buffer> {
         let ciphertext = to_napi_result!(RustCryptoAesGcm::encrypt_with_aad_and_nonce(&plaintext, &key, &aad, &nonce))?;
         Ok(Buffer::from(ciphertext))
+    }
+}
+
+/// Stream Cipher Module - Stateful AES-256-GCM with automatic nonce management
+#[napi]
+pub struct StreamCipherJs {
+    inner: StreamCipher,
+}
+#[napi]
+impl StreamCipherJs {
+    /// Create a new StreamCipher instance with the provided encryption key
+    ///
+    /// # Arguments
+    /// * `key` - AES-256 key (must be exactly 32 bytes)
+    ///
+    /// # Returns
+    /// * StreamCipherJs instance for stateful encryption/decryption
+    #[napi(constructor)]
+    pub fn new(key: Buffer) -> napi::Result<Self> {
+        let cipher = to_napi_result!(StreamCipher::new(&key))?;
+        Ok(StreamCipherJs { inner: cipher })
+    }
+
+    /// Encrypt a chunk of data using the stream cipher
+    ///
+    /// This method automatically generates a unique nonce for each operation
+    /// by incrementing an internal counter. The returned ciphertext includes
+    /// the nonce prefix for decryption.
+    ///
+    /// # Arguments
+    /// * `plaintext` - Data to encrypt
+    ///
+    /// # Returns
+    /// * Encrypted data with nonce prefix (nonce + ciphertext + tag)
+    ///
+    /// # Thread Safety
+    /// This method is thread-safe and can be called concurrently.
+    #[napi]
+    pub fn encrypt_chunk(&self, plaintext: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(self.inner.encrypt_chunk(&plaintext))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
+    /// Decrypt a chunk of data using the stream cipher
+    ///
+    /// The ciphertext must include the nonce prefix as returned by encrypt_chunk.
+    ///
+    /// # Arguments
+    /// * `ciphertext` - Encrypted data with nonce prefix (nonce + ciphertext + tag)
+    ///
+    /// # Returns
+    /// * Decrypted plaintext data
+    ///
+    /// # Thread Safety
+    /// This method is thread-safe and can be called concurrently.
+    #[napi]
+    pub fn decrypt_chunk(&self, ciphertext: Buffer) -> napi::Result<Buffer> {
+        let plaintext = to_napi_result!(self.inner.decrypt_chunk(&ciphertext))?;
+        Ok(Buffer::from(plaintext))
+    }
+
+    /// Reset the stream cipher state
+    ///
+    /// This generates a new base nonce and resets the nonce counter to 0.
+    /// Use this method when the nonce counter approaches overflow or when
+    /// starting a new encryption session.
+    #[napi]
+    pub fn reset(&self) -> napi::Result<()> {
+        to_napi_result!(self.inner.reset())?;
+        Ok(())
+    }
+
+    /// Get the current nonce counter value
+    ///
+    /// This can be used to monitor nonce usage and determine when to reset.
+    /// Consider resetting when the counter approaches the maximum value.
+    #[napi]
+    pub fn get_nonce_counter(&self) -> napi::Result<f64> {
+        let counter = to_napi_result!(self.inner.get_nonce_counter())?;
+        // Convert u64 to f64 for JavaScript (JavaScript numbers are 64-bit floats)
+        Ok(counter as f64)
+    }
+
+    /// Generate a new AES-256 key for stream cipher use
+    #[napi]
+    pub fn generate_key() -> napi::Result<Buffer> {
+        let key = to_napi_result!(SecureRandom::generate_bytes(32))?;
+        Ok(Buffer::from(key))
     }
 }
 

@@ -7,6 +7,7 @@
 //! ## Features
 //!
 //! - **Symmetric Encryption**: AES-256-GCM (AWS-LC-RS default, RustCrypto available), ChaCha20-Poly1305
+//! - **Stream Cipher**: Stateful AES-256-GCM streaming encryption with automatic nonce management
 //! - **Asymmetric Encryption**: RSA-OAEP
 //! - **Digital Signatures**: ECDSA P-256, Ed25519
 //! - **Post-Quantum Cryptography**: ML-KEM (Key Encapsulation), ML-DSA (Digital Signatures)
@@ -14,6 +15,7 @@
 //! - **Key Derivation**: Argon2, HKDF, PBKDF2
 //! - **Secure Random Generation**: OS-backed random number generation
 //! - **Memory Safety**: Automatic zeroization of sensitive data
+//! - **Thread Safety**: All operations are thread-safe
 //!
 //! ## Quick Start
 //!
@@ -26,6 +28,14 @@
 //! let ciphertext = AesGcm::encrypt(plaintext, &key)?;
 //! let decrypted = AesGcm::decrypt(&ciphertext, &key)?;
 //! assert_eq!(plaintext, &decrypted[..]);
+//!
+//! // Stream cipher for stateful encryption
+//! let stream_key = vec![1u8; 32]; // 32-byte key
+//! let cipher = StreamCipher::new(&stream_key)?;
+//! let chunk1 = cipher.encrypt_chunk(b"First chunk")?;
+//! let chunk2 = cipher.encrypt_chunk(b"Second chunk")?;
+//! let decrypted1 = cipher.decrypt_chunk(&chunk1)?;
+//! let decrypted2 = cipher.decrypt_chunk(&chunk2)?;
 //!
 //! // Digital signatures
 //! let keypair = Ed25519Crypto::generate_keypair()?;
@@ -269,6 +279,32 @@ pub mod crypto {
     pub fn ml_dsa_87_verify(message: &[u8], signature: &[u8], public_key: &[u8]) -> CryptoResult<bool> {
         MlDsa87::verify(message, signature, public_key)
     }
+
+    // Stream Cipher convenience functions
+
+    /// Create a new StreamCipher instance with the provided encryption key
+    #[inline]
+    pub fn create_stream_cipher(key: &[u8]) -> CryptoResult<StreamCipher> {
+        StreamCipher::new(key)
+    }
+
+    /// Encrypt a chunk of data using the stream cipher
+    #[inline]
+    pub fn stream_encrypt_chunk(cipher: &StreamCipher, plaintext: &[u8]) -> CryptoResult<Vec<u8>> {
+        cipher.encrypt_chunk(plaintext)
+    }
+
+    /// Decrypt a chunk of data using the stream cipher
+    #[inline]
+    pub fn stream_decrypt_chunk(cipher: &StreamCipher, ciphertext: &[u8]) -> CryptoResult<Vec<u8>> {
+        cipher.decrypt_chunk(ciphertext)
+    }
+
+    /// Reset the stream cipher state
+    #[inline]
+    pub fn stream_cipher_reset(cipher: &StreamCipher) -> CryptoResult<()> {
+        cipher.reset()
+    }
 }
 
 #[cfg(test)]
@@ -438,5 +474,28 @@ mod tests {
         let decrypted = crypto::decrypt_aes_rustcrypto(&ciphertext, &key).unwrap();
 
         assert_eq!(plaintext, &decrypted[..]);
+    }
+
+    #[test]
+    fn test_stream_cipher_convenience_functions() {
+        use crate::crypto;
+
+        let key = vec![1u8; 32]; // 32-byte key
+        let cipher = crypto::create_stream_cipher(&key).unwrap();
+
+        let plaintext = b"Stream cipher convenience function test";
+        let ciphertext = crypto::stream_encrypt_chunk(&cipher, plaintext).unwrap();
+        let decrypted = crypto::stream_decrypt_chunk(&cipher, &ciphertext).unwrap();
+
+        assert_eq!(plaintext, &decrypted[..]);
+
+        // Test reset
+        crypto::stream_cipher_reset(&cipher).unwrap();
+
+        // Should still work after reset
+        let ciphertext2 = crypto::stream_encrypt_chunk(&cipher, plaintext).unwrap();
+        let decrypted2 = crypto::stream_decrypt_chunk(&cipher, &ciphertext2).unwrap();
+
+        assert_eq!(plaintext, &decrypted2[..]);
     }
 }

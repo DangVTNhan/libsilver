@@ -90,6 +90,77 @@ export declare class Crypto {
   ): Buffer;
 }
 
+/**
+ * StreamEncryption - Stateful AES-256-GCM stream cipher with automatic nonce management
+ *
+ * This class provides a high-level wrapper around the StreamCipherJs native implementation,
+ * offering stateful encryption/decryption with automatic nonce management and thread safety.
+ *
+ * Features:
+ * - Automatic nonce increment for each operation
+ * - Thread-safe operations using Arc<Mutex<>> internally
+ * - AWS-LC-RS backend for high performance
+ * - Zero-copy operations with BufferRef support
+ * - Stateful design for streaming data processing
+ */
+export declare class StreamEncryption {
+  /**
+   * Create a new StreamEncryption instance
+   * @param key - AES-256 key (must be exactly 32 bytes)
+   */
+  constructor(key: Buffer);
+
+  /**
+   * Generate a new AES-256 key for stream cipher use
+   * @returns 32-byte AES-256 key
+   */
+  static generateKey(): Buffer;
+
+  /**
+   * Encrypt a chunk of data using the stream cipher
+   *
+   * This method automatically generates a unique nonce for each operation
+   * by incrementing an internal counter. The returned ciphertext includes
+   * the nonce prefix for decryption.
+   *
+   * @param plaintext - Data to encrypt
+   * @returns Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   */
+  encryptChunk(plaintext: Buffer): Buffer;
+
+  /**
+   * Decrypt a chunk of data using the stream cipher
+   *
+   * The ciphertext must include the nonce prefix as returned by encryptChunk.
+   *
+   * @param ciphertext - Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   * @returns Decrypted plaintext data
+   */
+  decryptChunk(ciphertext: Buffer): Buffer;
+
+  /**
+   * Reset the stream cipher state
+   *
+   * This generates a new base nonce and resets the nonce counter to 0.
+   * Use this method when the nonce counter approaches overflow or when
+   * starting a new encryption session.
+   */
+  reset(): void;
+
+  /**
+   * Get the current nonce counter value
+   *
+   * This can be used to monitor nonce usage and determine when to reset.
+   * Consider resetting when the counter approaches the maximum value.
+   *
+   * @returns Current nonce counter value
+   */
+  getNonceCounter(): number;
+}
+
 // Support default export for ES modules
-declare const _default: typeof import("./native") & { Crypto: typeof Crypto };
+declare const _default: typeof import("./native") & {
+  Crypto: typeof Crypto;
+  StreamEncryption: typeof StreamEncryption;
+};
 export default _default;

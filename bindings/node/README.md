@@ -6,6 +6,7 @@ High-performance cryptography library for Node.js, built with Rust and featuring
 
 - **Post-Quantum Cryptography**: ML-KEM (Key Encapsulation) and ML-DSA (Digital Signatures) - NIST standardized algorithms
 - **Symmetric Encryption**: AES-256-GCM (AWS-LC-RS), ChaCha20-Poly1305
+- **Stream Cipher**: Stateful AES-256-GCM with automatic nonce management for streaming data
 - **Cryptographic Hashing**: SHA-256, SHA-512, BLAKE3, HMAC
 - **Key Derivation Functions**: Argon2 password hashing
 - **Memory Safety**: Automatic zeroization of sensitive data
@@ -22,7 +23,7 @@ yarn add git+ssh://git@gitlab.silvertiger.tech/stealth-vault/stealthvault-libsil
 ## 🔧 Quick Start
 
 ```javascript
-const { Crypto } = require('stealthvault-libsilver');
+const { Crypto, StreamEncryption } = require('stealthvault-libsilver');
 
 // Symmetric encryption with AES-256-GCM (default)
 const key = Crypto.generateEncryptionKey();
@@ -31,6 +32,13 @@ const ciphertext = Crypto.encrypt(plaintext, key);
 const decrypted = Crypto.decrypt(ciphertext, key);
 
 console.log('Decrypted:', decrypted.toString('utf8')); // "Hello, World!"
+
+// Stream cipher for stateful encryption
+const streamKey = StreamEncryption.generateKey();
+const cipher = new StreamEncryption(streamKey);
+const chunk1 = cipher.encryptChunk(Buffer.from('Chunk 1', 'utf8'));
+const chunk2 = cipher.encryptChunk(Buffer.from('Chunk 2', 'utf8'));
+console.log('Stream encrypted chunks created!');
 
 // Post-Quantum Key Encapsulation (ML-KEM-1024 default)
 const kemKeypair = Crypto.generateEncapsulationKey();
@@ -84,6 +92,60 @@ const chachaKey = Crypto.generateEncryptionKey("chacha20-poly1305");
 const ciphertext = Crypto.encrypt(plaintext, chachaKey, null, "chacha20-poly1305");
 const decrypted = Crypto.decrypt(ciphertext, chachaKey, null, "chacha20-poly1305");
 ```
+
+### Stream Cipher (Stateful AES-256-GCM)
+
+The `StreamEncryption` class provides stateful encryption for streaming data with automatic nonce management. This is ideal for encrypting large amounts of data in chunks or for real-time streaming applications.
+
+**Features:**
+- **Stateful Design**: Maintains internal state for nonce management
+- **Thread-Safe**: Can be used safely across multiple threads
+- **AWS-LC-RS Backend**: High-performance implementation
+- **Automatic Nonce Management**: Prevents nonce reuse within the same key context
+- **Zero-Copy Operations**: Optimized for large data processing
+
+```javascript
+const { StreamEncryption } = require('stealthvault-libsilver');
+
+// Generate a key for stream cipher
+const key = StreamEncryption.generateKey();
+
+// Create a stream cipher instance
+const cipher = new StreamEncryption(key);
+
+// Encrypt data chunks
+const chunk1 = Buffer.from('First chunk of data', 'utf8');
+const chunk2 = Buffer.from('Second chunk of data', 'utf8');
+const chunk3 = Buffer.from('Third chunk of data', 'utf8');
+
+const encrypted1 = cipher.encryptChunk(chunk1);
+const encrypted2 = cipher.encryptChunk(chunk2);
+const encrypted3 = cipher.encryptChunk(chunk3);
+
+// Decrypt data chunks (order matters for stream ciphers)
+const decrypted1 = cipher.decryptChunk(encrypted1);
+const decrypted2 = cipher.decryptChunk(encrypted2);
+const decrypted3 = cipher.decryptChunk(encrypted3);
+
+console.log('Decrypted chunks:');
+console.log(decrypted1.toString('utf8')); // "First chunk of data"
+console.log(decrypted2.toString('utf8')); // "Second chunk of data"
+console.log(decrypted3.toString('utf8')); // "Third chunk of data"
+
+// Monitor nonce usage
+console.log('Nonce counter:', cipher.getNonceCounter()); // 3
+
+// Reset cipher state for new session
+cipher.reset();
+console.log('Nonce counter after reset:', cipher.getNonceCounter()); // 0
+```
+
+**Important Notes:**
+- Each `StreamEncryption` instance maintains its own state
+- Nonces are automatically incremented for each `encryptChunk()` call
+- The same cipher instance should be used for both encryption and decryption
+- Consider calling `reset()` when the nonce counter approaches overflow
+- Each encrypted chunk includes its own nonce and authentication tag
 
 ### Post-Quantum Key Encapsulation (ML-KEM)
 
@@ -324,7 +386,28 @@ yarn test:all
 yarn test:basic          # Basic cryptography tests
 yarn test:integration    # Integration tests
 yarn test:performance    # Performance benchmarks
+yarn test:stream         # Stream cipher tests (both native and wrapper)
+yarn test:stream-cipher  # Native stream cipher tests only
+yarn test:stream-wrapper # Stream encryption wrapper tests only
 ```
+
+## 📊 Benchmarking
+
+Run comprehensive performance benchmarks to compare LibSilver with Node.js native crypto:
+
+```bash
+# Run comprehensive stream cipher benchmarks
+yarn benchmark:stream
+
+# This benchmark includes:
+# - Basic LibSilver StreamCipher performance
+# - LibSilver vs Node.js crypto comparison
+# - Streaming vs chunk-based processing
+# - Memory usage analysis
+# - Large file processing benchmarks
+```
+
+The benchmark generates detailed performance reports and saves results to JSON files for analysis.
 
 ## 🖥️ Platform Support
 

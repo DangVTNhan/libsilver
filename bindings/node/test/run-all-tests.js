@@ -5,6 +5,8 @@ const { runAllTests: runAwsLcAesTests } = require('./aws-lc-aes-test.js');
 const { runPostQuantumTests } = require('./post-quantum-test.js');
 const { runIntegrationTests } = require('./integration-test.js');
 const { runPerformanceTests } = require('./performance-test.js');
+const { runStreamCipherTests } = require('./stream-cipher-test.js');
+const { runStreamEncryptionWrapperTests } = require('./stream-encryption-wrapper-test.js');
 
 function printHeader(title) {
   const line = '='.repeat(60);
@@ -82,7 +84,37 @@ async function runAllTestSuites() {
 
     printSeparator();
 
-    // 3. Post-quantum cryptography tests
+    // 3. Stream Cipher Tests (Native)
+    const streamCipherResult = await runTestSuite('Stream Cipher Tests', () => {
+      return new Promise((resolve, reject) => {
+        try {
+          runStreamCipherTests();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+    results.push({ name: 'Stream Cipher Tests', ...streamCipherResult });
+
+    printSeparator();
+
+    // 4. Stream Encryption Wrapper Tests
+    const streamWrapperResult = await runTestSuite('Stream Encryption Wrapper Tests', () => {
+      return new Promise((resolve, reject) => {
+        try {
+          runStreamEncryptionWrapperTests();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+    results.push({ name: 'Stream Wrapper Tests', ...streamWrapperResult });
+
+    printSeparator();
+
+    // 5. Post-quantum cryptography tests
     const pqResult = await runTestSuite('Post-Quantum Cryptography Tests', () => {
       return new Promise((resolve, reject) => {
         try {
@@ -97,7 +129,7 @@ async function runAllTestSuites() {
 
     printSeparator();
 
-    // 4. Integration tests
+    // 6. Integration tests
     const integrationResult = await runTestSuite('Integration Tests', () => {
       return new Promise((resolve, reject) => {
         try {
@@ -111,8 +143,8 @@ async function runAllTestSuites() {
     results.push({ name: 'Integration Tests', ...integrationResult });
     
     printSeparator();
-    
-    // 5. Performance tests (optional - don't fail the entire suite if these fail)
+
+    // 7. Performance tests (optional - don't fail the entire suite if these fail)
     const performanceResult = await runTestSuite('Performance Tests', () => {
       return new Promise((resolve, reject) => {
         try {
@@ -162,6 +194,7 @@ async function runAllTestSuites() {
       console.log('\nLibSilver Node.js bindings are working correctly.');
       console.log('The library provides comprehensive cryptographic functionality including:');
       console.log('  • Classical cryptography (AES, ChaCha20, RSA, Ed25519, ECDSA)');
+      console.log('  • Stream cipher (Stateful AES-256-GCM with automatic nonce management)');
       console.log('  • Post-quantum cryptography (ML-KEM, ML-DSA)');
       console.log('  • Hash functions (SHA-256, SHA-512, BLAKE3, HMAC)');
       console.log('  • Key derivation (Argon2, PBKDF2, HKDF)');
@@ -195,6 +228,8 @@ function parseArgs() {
     postQuantum: false,
     integration: false,
     performance: false,
+    streamCipher: false,
+    streamWrapper: false,
     all: false,
     help: false
   };
@@ -215,6 +250,14 @@ function parseArgs() {
       case '--perf':
         options.performance = true;
         break;
+      case '--stream-cipher':
+      case '--stream':
+        options.streamCipher = true;
+        break;
+      case '--stream-wrapper':
+      case '--wrapper':
+        options.streamWrapper = true;
+        break;
       case '--all':
         options.all = true;
         break;
@@ -230,7 +273,7 @@ function parseArgs() {
   }
   
   // If no specific tests selected, run all
-  if (!options.basic && !options.postQuantum && !options.integration && !options.performance) {
+  if (!options.basic && !options.postQuantum && !options.integration && !options.performance && !options.streamCipher && !options.streamWrapper) {
     options.all = true;
   }
   
@@ -249,6 +292,10 @@ function printHelp() {
   console.log('  --integration   Run integration tests only');
   console.log('  --performance   Run performance tests only');
   console.log('  --perf          Alias for --performance');
+  console.log('  --stream-cipher Run native stream cipher tests only');
+  console.log('  --stream        Alias for --stream-cipher');
+  console.log('  --stream-wrapper Run stream encryption wrapper tests only');
+  console.log('  --wrapper       Alias for --stream-wrapper');
   console.log('  --all           Run all test suites (default)');
   console.log('  --help, -h      Show this help message');
   console.log('');
@@ -314,7 +361,35 @@ async function main() {
       });
       results.push({ name: 'Integration Tests', ...result });
     }
-    
+
+    if (options.streamCipher) {
+      const result = await runTestSuite('Stream Cipher Tests', () => {
+        return new Promise((resolve, reject) => {
+          try {
+            runStreamCipherTests();
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+      });
+      results.push({ name: 'Stream Cipher Tests', ...result });
+    }
+
+    if (options.streamWrapper) {
+      const result = await runTestSuite('Stream Encryption Wrapper Tests', () => {
+        return new Promise((resolve, reject) => {
+          try {
+            runStreamEncryptionWrapperTests();
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+      });
+      results.push({ name: 'Stream Wrapper Tests', ...result });
+    }
+
     if (options.performance) {
       const result = await runTestSuite('Performance Tests', () => {
         return new Promise((resolve, reject) => {

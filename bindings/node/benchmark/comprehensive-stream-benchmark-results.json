@@ -1,0 +1,145 @@
+{
+  "timestamp": "2025-07-22T08:22:53.644Z",
+  "basic": [
+    {
+      "name": "64KB in 16 chunks (4KB each)",
+      "size": 65536,
+      "chunks": 16,
+      "encryptTime": 0.088584,
+      "decryptTime": 0.021125,
+      "totalTime": 0.109709,
+      "encryptThroughput": "705.55 MB/s",
+      "decryptThroughput": "2.89 GB/s"
+    },
+    {
+      "name": "256KB in 16 chunks (16KB each)",
+      "size": 262144,
+      "chunks": 16,
+      "encryptTime": 0.069625,
+      "decryptTime": 0.067167,
+      "totalTime": 0.13679200000000002,
+      "encryptThroughput": "3.51 GB/s",
+      "decryptThroughput": "3.63 GB/s"
+    },
+    {
+      "name": "1MB in 16 chunks (64KB each)",
+      "size": 1048576,
+      "chunks": 16,
+      "encryptTime": 0.261,
+      "decryptTime": 0.278375,
+      "totalTime": 0.5393749999999999,
+      "encryptThroughput": "3.74 GB/s",
+      "decryptThroughput": "3.51 GB/s"
+    }
+  ],
+  "comparison": [
+    {
+      "chunkSize": "1 KB",
+      "libsilver": {
+        "encryptTime": 0.078083,
+        "decryptTime": 0.080125,
+        "totalTime": 0.15820800000000002,
+        "encryptThroughput": "1.22 GB/s",
+        "decryptThroughput": "1.19 GB/s"
+      },
+      "nodejs": {
+        "encryptTime": 1.698458,
+        "decryptTime": 0.40075,
+        "totalTime": 2.099208,
+        "encryptThroughput": "57.5 MB/s",
+        "decryptThroughput": "243.68 MB/s"
+      }
+    },
+    {
+      "chunkSize": "16 KB",
+      "libsilver": {
+        "encryptTime": 0.412667,
+        "decryptTime": 0.43725,
+        "totalTime": 0.849917,
+        "encryptThroughput": "3.7 GB/s",
+        "decryptThroughput": "3.49 GB/s"
+      },
+      "nodejs": {
+        "encryptTime": 1.441333,
+        "decryptTime": 0.980167,
+        "totalTime": 2.4215,
+        "encryptThroughput": "1.06 GB/s",
+        "decryptThroughput": "1.56 GB/s"
+      }
+    },
+    {
+      "chunkSize": "64 KB",
+      "libsilver": {
+        "encryptTime": 1.627958,
+        "decryptTime": 1.802084,
+        "totalTime": 3.4300420000000003,
+        "encryptThroughput": "3.75 GB/s",
+        "decryptThroughput": "3.39 GB/s"
+      },
+      "nodejs": {
+        "encryptTime": 3.879458,
+        "decryptTime": 2.10775,
+        "totalTime": 5.987208,
+        "encryptThroughput": "1.57 GB/s",
+        "decryptThroughput": "2.9 GB/s"
+      }
+    },
+    {
+      "chunkSize": "256 KB",
+      "libsilver": {
+        "encryptTime": 6.296458,
+        "decryptTime": 6.73275,
+        "totalTime": 13.029208,
+        "encryptThroughput": "3.88 GB/s",
+        "decryptThroughput": "3.63 GB/s"
+      },
+      "nodejs": {
+        "encryptTime": 10.778375,
+        "decryptTime": 6.733583,
+        "totalTime": 17.511958,
+        "encryptThroughput": "2.27 GB/s",
+        "decryptThroughput": "3.63 GB/s"
+      }
+    },
+    {
+      "chunkSize": "1 MB",
+      "libsilver": {
+        "encryptTime": 19.708792,
+        "decryptTime": 28.028292,
+        "totalTime": 47.737083999999996,
+        "encryptThroughput": "4.95 GB/s",
+        "decryptThroughput": "3.48 GB/s"
+      },
+      "nodejs": {
+        "encryptTime": 34.906208,
+        "decryptTime": 21.616042,
+        "totalTime": 56.52225,
+        "encryptThroughput": "2.8 GB/s",
+        "decryptThroughput": "4.52 GB/s"
+      }
+    }
+  ],
+  "streaming": {
+    "libsilver": {
+      "encryptTime": 3.845125,
+      "decryptTime": 2.364792,
+      "totalTime": 6.209917,
+      "encryptThroughput": "4.06 GB/s",
+      "decryptThroughput": "6.61 GB/s",
+      "chunks": 256
+    },
+    "nodejs": {
+      "encryptTime": 7.540709,
+      "decryptTime": 3.718875,
+      "totalTime": 11.259584,
+      "encryptThroughput": "2.07 GB/s",
+      "decryptThroughput": "4.2 GB/s",
+      "chunks": 256
+    }
+  },
+  "summary": {
+    "avgEncryptSpeedup": 6.22212353312355,
+    "avgDecryptSpeedup": 2.036837349961925,
+    "streamingSpeedup": 1.8131617540137817
+  }
+}
