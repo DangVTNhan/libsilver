@@ -192,6 +192,42 @@ export declare class StreamCipherJs {
    * Consider resetting when the counter approaches the maximum value.
    */
   getNonceCounter(): number
+  /**
+   * Encrypt a chunk of data with additional authenticated data (AAD)
+   *
+   * This method performs authenticated encryption where the AAD is authenticated
+   * but not encrypted. The returned ciphertext includes the nonce prefix for
+   * decryption, similar to the standard encrypt_chunk method.
+   *
+   * # Arguments
+   * * `plaintext` - Data to encrypt
+   * * `aad` - Additional authenticated data (not encrypted, but authenticated)
+   *
+   * # Returns
+   * * Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   *
+   * # Thread Safety
+   * This method is thread-safe and can be called concurrently.
+   */
+  encryptChunkWithAad(plaintext: Buffer, aad: Buffer): Buffer
+  /**
+   * Decrypt a chunk of data with additional authenticated data (AAD)
+   *
+   * This method performs authenticated decryption where the AAD is verified
+   * along with the ciphertext. The ciphertext must include the nonce prefix
+   * and authentication tag as returned by encrypt_chunk_with_aad.
+   *
+   * # Arguments
+   * * `ciphertext` - Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   * * `aad` - Additional authenticated data (same as used during encryption)
+   *
+   * # Returns
+   * * Decrypted plaintext data
+   *
+   * # Thread Safety
+   * This method is thread-safe and can be called concurrently.
+   */
+  decryptChunkWithAad(ciphertext: Buffer, aad: Buffer): Buffer
   /** Generate a new AES-256 key for stream cipher use */
   static generateKey(): Buffer
 }

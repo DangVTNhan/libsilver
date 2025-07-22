@@ -262,6 +262,36 @@ class StreamEncryption {
   getNonceCounter() {
     return this.cipher.getNonceCounter();
   }
+
+  /**
+   * Encrypt a chunk of data with additional authenticated data (AAD)
+   *
+   * This method performs authenticated encryption where the AAD is authenticated
+   * but not encrypted. The returned ciphertext includes the nonce prefix for
+   * decryption, similar to the standard encryptChunk method.
+   *
+   * @param {Buffer} plaintext - Data to encrypt
+   * @param {Buffer} aad - Additional authenticated data (not encrypted, but authenticated)
+   * @returns {Buffer} Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   */
+  encryptChunkWithAad(plaintext, aad) {
+    return this.cipher.encryptChunkWithAad(plaintext, aad);
+  }
+
+  /**
+   * Decrypt a chunk of data with additional authenticated data (AAD)
+   *
+   * This method performs authenticated decryption where the AAD is verified
+   * along with the ciphertext. The ciphertext must include the nonce prefix
+   * and authentication tag as returned by encryptChunkWithAad.
+   *
+   * @param {Buffer} ciphertext - Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   * @param {Buffer} aad - Additional authenticated data (same as used during encryption)
+   * @returns {Buffer} Decrypted plaintext data
+   */
+  decryptChunkWithAad(ciphertext, aad) {
+    return this.cipher.decryptChunkWithAad(ciphertext, aad);
+  }
 }
 
 // Export for CommonJS

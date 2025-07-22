@@ -6,7 +6,8 @@ High-performance cryptography library for Node.js, built with Rust and featuring
 
 - **Post-Quantum Cryptography**: ML-KEM (Key Encapsulation) and ML-DSA (Digital Signatures) - NIST standardized algorithms
 - **Symmetric Encryption**: AES-256-GCM (AWS-LC-RS), ChaCha20-Poly1305
-- **Stream Cipher**: Stateful AES-256-GCM with automatic nonce management for streaming data
+- **Stream Cipher**: Stateful AES-256-GCM with automatic nonce management and AAD support for streaming data
+- **Authenticated Encryption**: Additional Authenticated Data (AAD) support for context binding and integrity protection
 - **Cryptographic Hashing**: SHA-256, SHA-512, BLAKE3, HMAC
 - **Key Derivation Functions**: Argon2 password hashing
 - **Memory Safety**: Automatic zeroization of sensitive data
@@ -38,7 +39,13 @@ const streamKey = StreamEncryption.generateKey();
 const cipher = new StreamEncryption(streamKey);
 const chunk1 = cipher.encryptChunk(Buffer.from('Chunk 1', 'utf8'));
 const chunk2 = cipher.encryptChunk(Buffer.from('Chunk 2', 'utf8'));
-console.log('Stream encrypted chunks created!');
+
+// Stream cipher with Additional Authenticated Data (AAD)
+const sensitiveData = Buffer.from('Financial transaction', 'utf8');
+const metadata = Buffer.from('user_id:12345,amount:1000', 'utf8');
+const encryptedWithAad = cipher.encryptChunkWithAad(sensitiveData, metadata);
+const decryptedWithAad = cipher.decryptChunkWithAad(encryptedWithAad, metadata);
+console.log('Stream encrypted chunks with AAD created!');
 
 // Post-Quantum Key Encapsulation (ML-KEM-1024 default)
 const kemKeypair = Crypto.generateEncapsulationKey();
@@ -140,12 +147,159 @@ cipher.reset();
 console.log('Nonce counter after reset:', cipher.getNonceCounter()); // 0
 ```
 
+#### Stream Cipher with Additional Authenticated Data (AAD)
+
+The `StreamEncryption` class also supports authenticated encryption with Additional Authenticated Data (AAD). This allows you to authenticate metadata or context information along with the encrypted data without including it in the ciphertext.
+
+```javascript
+const { StreamEncryption } = require('stealthvault-libsilver');
+
+// Create a stream cipher instance
+const key = StreamEncryption.generateKey();
+const cipher = new StreamEncryption(key);
+
+// Encrypt with AAD
+const plaintext = Buffer.from('Sensitive financial data', 'utf8');
+const aad = Buffer.from('user_id:12345,timestamp:2024-01-15T10:30:00Z', 'utf8');
+
+const ciphertext = cipher.encryptChunkWithAad(plaintext, aad);
+
+// Decrypt with AAD (must use the same AAD)
+const decrypted = cipher.decryptChunkWithAad(ciphertext, aad);
+console.log('Decrypted:', decrypted.toString('utf8'));
+
+// Multiple chunks with different AAD
+const chunks = [
+    { data: Buffer.from('Chunk 1', 'utf8'), aad: Buffer.from('metadata:chunk1', 'utf8') },
+    { data: Buffer.from('Chunk 2', 'utf8'), aad: Buffer.from('metadata:chunk2', 'utf8') },
+    { data: Buffer.from('Chunk 3', 'utf8'), aad: Buffer.from('metadata:chunk3', 'utf8') }
+];
+
+const encryptedChunks = [];
+for (const chunk of chunks) {
+    const encrypted = cipher.encryptChunkWithAad(chunk.data, chunk.aad);
+    encryptedChunks.push({ ciphertext: encrypted, aad: chunk.aad });
+}
+
+// Decrypt each chunk with its corresponding AAD
+for (const encrypted of encryptedChunks) {
+    const decrypted = cipher.decryptChunkWithAad(encrypted.ciphertext, encrypted.aad);
+    console.log('Decrypted chunk:', decrypted.toString('utf8'));
+}
+```
+
+**AAD Features:**
+- **Authentication without Encryption**: AAD is authenticated but not encrypted
+- **Flexible Metadata**: Can include user IDs, timestamps, file paths, or any contextual data
+- **Tamper Detection**: Any modification to AAD or ciphertext will cause decryption to fail
+- **Per-Chunk AAD**: Each chunk can have different AAD for fine-grained authentication
+- **Empty AAD Support**: Works with empty AAD (`Buffer.alloc(0)`) when no additional data is needed
+
+**Security Benefits:**
+- **Integrity Protection**: Ensures both ciphertext and AAD haven't been tampered with
+- **Context Binding**: Binds encrypted data to specific context or metadata
+- **Replay Attack Prevention**: AAD can include timestamps or sequence numbers
+- **Access Control**: AAD can include user permissions or access levels
+
 **Important Notes:**
 - Each `StreamEncryption` instance maintains its own state
-- Nonces are automatically incremented for each `encryptChunk()` call
+- Nonces are automatically incremented for each `encryptChunk()` and `encryptChunkWithAad()` call
 - The same cipher instance should be used for both encryption and decryption
 - Consider calling `reset()` when the nonce counter approaches overflow
 - Each encrypted chunk includes its own nonce and authentication tag
+- AAD must be identical during encryption and decryption, or authentication will fail
+
+#### Stream Cipher API Reference
+
+**Basic Methods:**
+- `encryptChunk(plaintext: Buffer): Buffer` - Encrypt data chunk without AAD
+- `decryptChunk(ciphertext: Buffer): Buffer` - Decrypt data chunk without AAD
+
+**Authenticated Encryption Methods:**
+- `encryptChunkWithAad(plaintext: Buffer, aad: Buffer): Buffer` - Encrypt with AAD
+- `decryptChunkWithAad(ciphertext: Buffer, aad: Buffer): Buffer` - Decrypt with AAD verification
+
+**Utility Methods:**
+- `getNonceCounter(): number` - Get current nonce counter value
+- `reset(): void` - Reset cipher state and nonce counter
+- `StreamEncryption.generateKey(): Buffer` - Generate new AES-256 key
+
+**Error Handling:**
+```javascript
+try {
+    const decrypted = cipher.decryptChunkWithAad(ciphertext, wrongAad);
+} catch (error) {
+    if (error.message.includes('Authentication tag verification failed')) {
+        console.log('AAD mismatch or data tampering detected');
+    } else if (error.message.includes('Ciphertext too short')) {
+        console.log('Invalid ciphertext format');
+    }
+}
+```
+
+#### Use Cases for Authenticated Encryption with AAD
+
+**File Encryption with Metadata:**
+```javascript
+const fileData = Buffer.from(fs.readFileSync('document.pdf'));
+const metadata = Buffer.from(JSON.stringify({
+    filename: 'document.pdf',
+    owner: 'user123',
+    timestamp: Date.now(),
+    permissions: 'read-write'
+}), 'utf8');
+
+const encrypted = cipher.encryptChunkWithAad(fileData, metadata);
+// Store encrypted data and metadata separately
+// Metadata is authenticated but not encrypted
+```
+
+**Database Record Encryption:**
+```javascript
+const recordData = Buffer.from(JSON.stringify({
+    ssn: '123-45-6789',
+    creditCard: '4111-1111-1111-1111'
+}), 'utf8');
+
+const recordContext = Buffer.from(JSON.stringify({
+    table: 'users',
+    userId: 12345,
+    version: 1
+}), 'utf8');
+
+const encryptedRecord = cipher.encryptChunkWithAad(recordData, recordContext);
+```
+
+**API Request/Response Encryption:**
+```javascript
+const requestPayload = Buffer.from(JSON.stringify({
+    action: 'transfer',
+    amount: 1000,
+    recipient: 'account456'
+}), 'utf8');
+
+const requestContext = Buffer.from(JSON.stringify({
+    userId: 'user123',
+    sessionId: 'sess_abc123',
+    timestamp: Date.now(),
+    endpoint: '/api/transfer'
+}), 'utf8');
+
+const encryptedRequest = cipher.encryptChunkWithAad(requestPayload, requestContext);
+```
+
+**Streaming Media with Metadata:**
+```javascript
+const videoChunk = Buffer.from(/* video data */);
+const chunkMetadata = Buffer.from(JSON.stringify({
+    chunkIndex: 42,
+    timestamp: 1640995200,
+    resolution: '1080p',
+    userId: 'viewer123'
+}), 'utf8');
+
+const encryptedChunk = cipher.encryptChunkWithAad(videoChunk, chunkMetadata);
+```
 
 ### Post-Quantum Key Encapsulation (ML-KEM)
 
@@ -341,10 +495,13 @@ console.log('Decrypted:', decryptedMessage.toString('utf8'));
 ## 🛡️ Security Features
 
 - **Post-Quantum Security**: NIST-standardized ML-KEM and ML-DSA algorithms protect against quantum computer attacks
+- **Authenticated Encryption**: AAD support provides integrity protection for metadata and context binding
 - **Memory Safety**: All sensitive data is automatically zeroized when no longer needed
 - **Secure Defaults**: Uses secure parameters and algorithms by default (AES-256-GCM, ML-KEM-1024, ML-DSA-87)
 - **High Performance**: AWS-LC-RS provides hardware-accelerated AES-GCM with FIPS 140-2 Level 1 validation
 - **Constant-Time Operations**: Leverages RustCrypto's constant-time implementations
+- **Tamper Detection**: Any modification to ciphertext or AAD is immediately detected during decryption
+- **Nonce Management**: Automatic nonce handling prevents reuse and ensures unique encryption for each operation
 - **No Unsafe Code**: Pure safe Rust implementation with secure FFI bindings
 - **Audited Dependencies**: Built on well-audited RustCrypto crates and NIST reference implementations
 
@@ -368,6 +525,7 @@ yarn test
 yarn example                    # Basic cryptography examples
 yarn example:post-quantum       # Post-quantum cryptography examples
 node examples/aws-lc-aes-example.js  # AWS-LC-RS AES performance demo
+node examples/stream-authenticated-example.js  # Stream cipher with AAD examples
 ```
 
 ## 🧪 Testing
@@ -389,6 +547,9 @@ yarn test:performance    # Performance benchmarks
 yarn test:stream         # Stream cipher tests (both native and wrapper)
 yarn test:stream-cipher  # Native stream cipher tests only
 yarn test:stream-wrapper # Stream encryption wrapper tests only
+
+# Run authenticated encryption tests
+node test/stream-cipher-authenticated-test.js  # AAD encryption tests
 ```
 
 ## 📊 Benchmarking

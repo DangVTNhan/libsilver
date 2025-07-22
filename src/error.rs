@@ -53,6 +53,8 @@ pub const NONCE_OVERFLOW: &str = "Nonce counter overflow - reset required";
 pub const STREAM_CIPHER_POISONED: &str = "Stream cipher mutex poisoned";
 pub const INVALID_ML_DSA_PUBLIC_KEY: &str = "Invalid ML-DSA public key";
 pub const INVALID_ML_DSA_SIGNATURE: &str = "Invalid ML-DSA signature";
+pub const INVALID_AUTHENTICATION_TAG: &str = "Invalid authentication tag";
+pub const AUTHENTICATION_TAG_VERIFICATION_FAILED: &str = "Authentication tag verification failed";
 
 /// Unified error type for all cryptographic operations
 #[derive(Error, Debug, Clone, PartialEq)]

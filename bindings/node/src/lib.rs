@@ -326,6 +326,48 @@ impl StreamCipherJs {
         Ok(counter as f64)
     }
 
+    /// Encrypt a chunk of data with additional authenticated data (AAD)
+    ///
+    /// This method performs authenticated encryption where the AAD is authenticated
+    /// but not encrypted. The returned ciphertext includes the nonce prefix for
+    /// decryption, similar to the standard encrypt_chunk method.
+    ///
+    /// # Arguments
+    /// * `plaintext` - Data to encrypt
+    /// * `aad` - Additional authenticated data (not encrypted, but authenticated)
+    ///
+    /// # Returns
+    /// * Encrypted data with nonce prefix (nonce + ciphertext + tag)
+    ///
+    /// # Thread Safety
+    /// This method is thread-safe and can be called concurrently.
+    #[napi]
+    pub fn encrypt_chunk_with_aad(&self, plaintext: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+        let ciphertext = to_napi_result!(self.inner.encrypt_chunk_with_aad(&plaintext, &aad))?;
+        Ok(Buffer::from(ciphertext))
+    }
+
+    /// Decrypt a chunk of data with additional authenticated data (AAD)
+    ///
+    /// This method performs authenticated decryption where the AAD is verified
+    /// along with the ciphertext. The ciphertext must include the nonce prefix
+    /// and authentication tag as returned by encrypt_chunk_with_aad.
+    ///
+    /// # Arguments
+    /// * `ciphertext` - Encrypted data with nonce prefix (nonce + ciphertext + tag)
+    /// * `aad` - Additional authenticated data (same as used during encryption)
+    ///
+    /// # Returns
+    /// * Decrypted plaintext data
+    ///
+    /// # Thread Safety
+    /// This method is thread-safe and can be called concurrently.
+    #[napi]
+    pub fn decrypt_chunk_with_aad(&self, ciphertext: Buffer, aad: Buffer) -> napi::Result<Buffer> {
+        let plaintext = to_napi_result!(self.inner.decrypt_chunk_with_aad(&ciphertext, &aad))?;
+        Ok(Buffer::from(plaintext))
+    }
+
     /// Generate a new AES-256 key for stream cipher use
     #[napi]
     pub fn generate_key() -> napi::Result<Buffer> {

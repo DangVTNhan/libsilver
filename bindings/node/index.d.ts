@@ -156,6 +156,32 @@ export declare class StreamEncryption {
    * @returns Current nonce counter value
    */
   getNonceCounter(): number;
+
+  /**
+   * Encrypt a chunk of data with additional authenticated data (AAD)
+   *
+   * This method performs authenticated encryption where the AAD is authenticated
+   * but not encrypted. The returned ciphertext includes the nonce prefix for
+   * decryption, similar to the standard encryptChunk method.
+   *
+   * @param plaintext - Data to encrypt
+   * @param aad - Additional authenticated data (not encrypted, but authenticated)
+   * @returns Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   */
+  encryptChunkWithAad(plaintext: Buffer, aad: Buffer): Buffer;
+
+  /**
+   * Decrypt a chunk of data with additional authenticated data (AAD)
+   *
+   * This method performs authenticated decryption where the AAD is verified
+   * along with the ciphertext. The ciphertext must include the nonce prefix
+   * and authentication tag as returned by encryptChunkWithAad.
+   *
+   * @param ciphertext - Encrypted data with nonce prefix (nonce + ciphertext + tag)
+   * @param aad - Additional authenticated data (same as used during encryption)
+   * @returns Decrypted plaintext data
+   */
+  decryptChunkWithAad(ciphertext: Buffer, aad: Buffer): Buffer;
 }
 
 // Support default export for ES modules
